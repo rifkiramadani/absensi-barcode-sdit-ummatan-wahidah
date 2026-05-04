@@ -4,10 +4,13 @@ namespace App\Models;
 
 use App\Models\Attendance;
 use App\Models\SchoolClass;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name'
     ];

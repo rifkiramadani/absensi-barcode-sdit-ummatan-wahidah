@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->foreignId('school_class_id')->constrained()->cascadeOnDelete;
             $table->string('rfid_uid')->unique();
             $table->timestamps();
