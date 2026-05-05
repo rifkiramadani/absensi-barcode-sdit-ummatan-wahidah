@@ -1,8 +1,8 @@
 <x-guest-layout>
-        <div class="w-full max-w-md p-8shadow-lg rounded-2xl">
+        <div class="w-full max-w-md p-8 rounded-2xl">
 
             <h2 class="mb-6 text-2xl font-bold text-center text-gray-800">
-                Sistem Absensi SDIT UMMATAN WAHIDAH
+                Sistem Absensi <br> SDIT UMMATAN WAHIDAH
             </h2>
 
             <form method="POST" action="{{ route('login') }}">
