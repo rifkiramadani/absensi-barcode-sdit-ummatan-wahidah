@@ -18,7 +18,7 @@
                 </a>
                 <ul class="flex flex-col gap-3">
                     <li>
-                        <h3 class="font-bold text-xs text-[#A5ABB2]">DAILY USE</h3>
+                        <h3 class="font-bold text-xs text-[#A5ABB2]">MENU</h3>
                     </li>
                     <li>
                         <a href="" class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 bg-[#2B82FE] transition-all duration-300 hover:bg-[#2B82FE]">
@@ -56,13 +56,13 @@
             </div>
         </div>
         <div id="menu-content" class="flex flex-col w-full pb-[30px]">
-            <div class="nav flex justify-between p-5 border-b border-[#EEEEEE]">
-                <form class="search flex items-center w-[400px] h-[52px] p-[10px_16px] rounded-full border border-[#EEEEEE]">
+            <div class="nav flex justify-end p-5 border-b border-[#EEEEEE]">
+                {{-- <form class="search flex items-center w-[400px] h-[52px] p-[10px_16px] rounded-full border border-[#EEEEEE]">
                     <input type="text" class="font-semibold placeholder:text-[#7F8190] placeholder:font-normal w-full outline-none" placeholder="Search by report, student, etc" name="search">
                     <button type="submit" class="ml-[10px] w-8 h-8 flex items-center justify-center">
                         <img src="{{asset("assets/images/icons/search.svg")}}" alt="icon">
                     </button>
-                </form>
+                </form> --}}
                 <div class="flex items-center gap-[30px]">
                     <div class="h-[46px] w-[1px] flex shrink-0 border border-[#EEEEEE]"></div>
 
@@ -106,10 +106,8 @@
                     </div>
                 </div>
             </div>
-                <div class="flex items-center justify-between w-full">
-                    <main class="p-6 overflow-y-auto">
-                        @yield('content')
-                    </main>
+                <div class="w-full">
+                    @yield('content')
                 </div>
             <!-- CONTENT -->
 

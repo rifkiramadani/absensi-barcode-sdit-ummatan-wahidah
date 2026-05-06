@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\SchoolClass;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
@@ -15,7 +15,7 @@ class StudentController extends Controller
         return view('students.index', compact('students'));
     }
 
-     public function create()
+    public function create()
     {
         $classes = SchoolClass::all();
         return view('students.create', compact('classes'));
@@ -24,15 +24,16 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'gender' => 'required',
-            'birth_place' => 'required',
-            'birth_date' => 'required|date',
-            'nik' => 'required|unique:students',
-            'entry_year' => 'required',
-            'school_class_id' => 'required',
-            'rfid_uid' => 'required|unique:students',
-            'photo' => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
+            'name'            => 'required|string|max:255',
+            'gender'          => 'required|in:L,P',
+            'birth_place'     => 'required',
+            'birth_date'      => 'required|date',
+            'nik'             => 'required|unique:students,nik',
+            'nisn'            => 'required|unique:students,nisn',
+            'entry_year'      => 'required|digits:4',
+            'school_class_id' => 'required|exists:school_classes,id',
+            'rfid_uid'        => 'required|unique:students,rfid_uid',
+            'photo'           => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
         ]);
 
         $data = $request->all();
@@ -43,42 +44,52 @@ class StudentController extends Controller
 
         Student::create($data);
 
-        return redirect()->route('students.index')->with('success', 'Data berhasil ditambahkan');
+        return redirect()->route('student.index')->with('success', 'Data siswa berhasil ditambahkan!');
     }
 
     public function edit(Student $student)
     {
         $classes = SchoolClass::all();
-        return view('students.edit', compact('student','classes'));
+        return view('students.edit', compact('student', 'classes'));
     }
 
     public function update(Request $request, Student $student)
     {
         $request->validate([
-            'name' => 'required',
-            'gender' => 'required',
-            'birth_place' => 'required',
-            'birth_date' => 'required|date',
-            'nik' => 'required|unique:students,nik,'.$student->id,
-            'entry_year' => 'required',
-            'school_class_id' => 'required',
-            'rfid_uid' => 'required|unique:students,rfid_uid,'.$student->id,
+            'name'            => 'required|string|max:255',
+            'gender'          => 'required|in:L,P',
+            'birth_place'     => 'required',
+            'birth_date'      => 'required|date',
+            'nik'             => 'required|unique:students,nik,' . $student->id,
+            'nisn'            => 'required|unique:students,nisn,' . $student->id,
+            'entry_year'      => 'required|digits:4',
+            'school_class_id' => 'required|exists:school_classes,id',
+            'rfid_uid'        => 'required|unique:students,rfid_uid,' . $student->id,
+            'photo'           => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
         ]);
 
         $data = $request->all();
 
         if ($request->hasFile('photo')) {
+            // Hapus foto lama jika ada foto baru
+            if ($student->photo) {
+                Storage::disk('public')->delete($student->photo);
+            }
             $data['photo'] = $request->file('photo')->store('students', 'public');
         }
 
         $student->update($data);
 
-        return redirect()->route('students.index')->with('success', 'Data berhasil diupdate');
+        return redirect()->route('student.index')->with('success', 'Data siswa berhasil diperbarui!');
     }
 
     public function destroy(Student $student)
     {
+        if ($student->photo) {
+            Storage::disk('public')->delete($student->photo);
+        }
+
         $student->delete();
-        return back()->with('success', 'Data dihapus');
+        return redirect()->route('student.index')->with('success', 'Data siswa berhasil dihapus!');
     }
 }

@@ -17,6 +17,7 @@ class Student extends Model
         'birth_place',
         'birth_date',
         'nik',
+        'nisn',
         'entry_year',
         'photo',
         'school_class_id',
