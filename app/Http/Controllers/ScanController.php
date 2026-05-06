@@ -31,6 +31,9 @@ class ScanController extends Controller
         $today = Carbon::today()->toDateString();
         $now = Carbon::now()->toTimeString();
 
+        // Generate Barcode HTML (Reuseable untuk semua kondisi response)
+        $barcodeHtml = \DNS2D::getBarcodeHTML($student->rfid_uid, 'QRCODE', 3, 3);
+
         // 2. Cek apakah sudah ada record absensi hari ini
         $attendance = Attendance::where('student_id', $student->id)
                                 ->where('date', $today)
@@ -38,7 +41,6 @@ class ScanController extends Controller
 
         // LOGIKA ABSEN PULANG (CHECK OUT)
         if ($attendance) {
-            // Jika sudah check_in tapi belum check_out
             if (is_null($attendance->check_out)) {
                 $attendance->update([
                     'check_out' => $now
@@ -50,22 +52,23 @@ class ScanController extends Controller
                     'student_name' => $student->name,
                     'student_photo' => $student->photo ? asset('storage/' . $student->photo) : asset('assets/images/photos/default-photo.svg'),
                     'attendance_status' => 'Pulang',
-                    'barcode' => $student->rfid_uid
+                    'barcode' => $student->rfid_uid,
+                    'barcode_html' => $barcodeHtml
                 ]);
             }
 
-            // Jika sudah check_in dan sudah check_out
             return response()->json([
                 'status' => 'info',
                 'message' => $student->name . ' sudah menyelesaikan absensi hari ini.',
                 'student_name' => $student->name,
                 'student_photo' => $student->photo ? asset('storage/' . $student->photo) : asset('assets/images/photos/default-photo.svg'),
                 'attendance_status' => 'Selesai',
-                'barcode' => $student->rfid_uid
+                'barcode' => $student->rfid_uid,
+                'barcode_html' => $barcodeHtml
             ]);
         }
 
-        // LOGIKA ABSEN MASUK (CHECK IN) - Jika record belum ada
+        // LOGIKA ABSEN MASUK (CHECK IN)
         $setting = Setting::first();
         $jamMasukLimit = $setting ? $setting->start_time : '07:30:00';
         $status = ($now <= $jamMasukLimit) ? 'Hadir' : 'Telat';
@@ -83,7 +86,8 @@ class ScanController extends Controller
             'student_name' => $student->name,
             'student_photo' => $student->photo ? asset('storage/' . $student->photo) : asset('assets/images/photos/default-photo.svg'),
             'attendance_status' => $status,
-            'barcode' => $student->rfid_uid
+            'barcode' => $student->rfid_uid,
+            'barcode_html' => $barcodeHtml
         ]);
     }
 }
