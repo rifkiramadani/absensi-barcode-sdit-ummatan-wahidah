@@ -65,13 +65,43 @@
                 </form>
                 <div class="flex items-center gap-[30px]">
                     <div class="h-[46px] w-[1px] flex shrink-0 border border-[#EEEEEE]"></div>
-                    <div class="flex items-center gap-3">
-                        <div class="flex flex-col text-right">
-                            <p class="text-sm text-[#7F8190]">Hallo</p>
-                            <p class="font-semibold">{{auth()->user()->name}}</p>
-                        </div>
-                        <div class="w-[46px] h-[46px]">
-                            <img src="{{asset("assets/images/photos/default-photo.svg")}}" alt="photo">
+
+                    <!-- Dropdown Container -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false" class="flex items-center gap-3 focus:outline-none">
+                            <div class="flex flex-col text-right">
+                                <p class="text-sm text-[#7F8190]">Hallo</p>
+                                <p class="font-semibold">{{ auth()->user()->name }}</p>
+                            </div>
+                            <div class="w-[46px] h-[46px]">
+                                <img src="{{ asset('assets/images/photos/default-photo.svg') }}" alt="photo" class="rounded-full">
+                            </div>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div x-show="open"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute right-0 z-50 w-48 py-2 mt-2 bg-white border border-gray-200 shadow-lg rounded-xl"
+                            style="display: none;">
+
+                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100">
+                                Edit Profile
+                            </a>
+
+                            <hr class="my-1 border-gray-100">
+
+                            <!-- Authentication / Logout -->
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full px-4 py-2 text-sm text-left text-red-600 transition hover:bg-red-50">
+                                    Log Out
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
