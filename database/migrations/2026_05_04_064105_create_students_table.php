@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('birth_place');
             $table->date('birth_date');
             $table->string('nik')->unique();
+            $table->string('nisn')->unique();
             $table->year('entry_year');
 
             $table->string('photo')->nullable();

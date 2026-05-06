@@ -29,6 +29,8 @@ class StudentFactory extends Factory
 
             'nik' => $this->faker->unique()->numerify('################'), // 16 digit
 
+            'nisn' => $this->faker->unique()->numerify('##########'), // 10 digit
+
             'entry_year' => $this->faker->numberBetween(2018, 2024),
 
             'photo' => null,
