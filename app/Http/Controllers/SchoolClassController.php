@@ -9,7 +9,8 @@ class SchoolClassController extends Controller
 {
     public function index()
     {
-        $classes = SchoolClass::withCount('students')->get();
+        // Mengambil 10 kelas per halaman
+        $classes = SchoolClass::withCount('students')->latest()->paginate(10);
         return view('schoolClasses.index', compact('classes'));
     }
 

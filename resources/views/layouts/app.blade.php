@@ -10,6 +10,25 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- Alpine.js untuk Dropdown --}}
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    {{-- <style>
+        /* Mengubah warna background item aktif menjadi biru */
+        nav[role="navigation"] span[aria-current="page"] span {
+            background-color: #2B82FE !important;
+            border-color: #2B82FE !important;
+            color: white !important;
+        }
+
+        /* Mengubah warna teks angka yang tidak aktif menjadi biru saat hover */
+        nav[role="navigation"] a:hover {
+            color: #2B82FE !important;
+        }
+
+        /* Memastikan transisi halus */
+        nav[role="navigation"] a, nav[role="navigation"] span {
+            transition: all 0.3s ease;
+        }
+    </style> --}}
 </head>
 <body class="bg-gray-100">
     <section id="content" class="flex">

@@ -105,7 +105,7 @@
                     </table>
                 </div>
                 <div class="mt-6">
-                    {{-- {{ $students->links() }} --}}
+                    {{ $students->links() }}
                 </div>
             </div>
         </div>
