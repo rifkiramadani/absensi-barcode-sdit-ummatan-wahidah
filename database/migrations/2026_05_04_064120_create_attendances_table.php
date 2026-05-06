@@ -13,10 +13,19 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
-            $table->timestamp('scan_time');
-            $table->enum('status', ['Hadir','Telat']);
+
+            $table->date('date'); // tanggal absen
+
+            $table->time('check_in')->nullable();
+            $table->time('check_out')->nullable();
+
+            $table->enum('status', ['Hadir', 'Telat'])->nullable();
+
             $table->timestamps();
+
+            $table->unique(['student_id', 'date']);
         });
     }
 

@@ -13,9 +13,20 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
+
             $table->string('name');
-            $table->foreignId('school_class_id')->constrained()->cascadeOnDelete;
+            $table->enum('gender', ['L', 'P']); // L = laki-laki, P = perempuan
+            $table->string('birth_place');
+            $table->date('birth_date');
+            $table->string('nik')->unique();
+            $table->year('entry_year');
+
+            $table->string('photo')->nullable();
+
+            $table->foreignId('school_class_id')->constrained()->cascadeOnDelete();
+
             $table->string('rfid_uid')->unique();
+
             $table->timestamps();
         });
     }
