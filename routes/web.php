@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     // ROUTE FOR ATTENDANCE RECAP
     Route::get('/attendance/recap', [AttendanceController::class, 'recap'])->name('attendance.recap');
     Route::get('/attendance/export', [AttendanceController::class, 'exportExcel'])->name('attendance.export');
+    Route::delete('/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
 });
 
 require __DIR__.'/auth.php';
