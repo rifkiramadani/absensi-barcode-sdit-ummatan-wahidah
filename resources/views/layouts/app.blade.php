@@ -21,7 +21,7 @@
                         <h3 class="font-bold text-xs text-[#A5ABB2]">MENU</h3>
                     </li>
                     <li>
-                        <a href="" class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 bg-[#2B82FE] transition-all duration-300 hover:bg-[#2B82FE]">
+                        <a href="{{route('dashboard')}}" class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 bg-[#2B82FE] transition-all duration-300 hover:bg-[#2B82FE]">
                             <div>
                                 <img src="{{asset("assets/images/icons/home-hashtag.svg")}}" alt="icon">
                             </div>
@@ -37,11 +37,19 @@
                         </a>
                     </li>
                     <li>
-                        <a href="" class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300 hover:bg-[#2B82FE]">
+                        <a href="{{route('school_class.index')}}" class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300 hover:bg-[#2B82FE]">
                             <div>
                                 <img src="{{asset("assets/images/icons/profile-2user.svg")}}" alt="icon">
                             </div>
                             <p class="font-semibold transition-all duration-300 hover:text-white">Data Kelas</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('school_class.index')}}" class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300 hover:bg-[#2B82FE]">
+                            <div>
+                                <img src="{{asset("assets/images/icons/profile-2user.svg")}}" alt="icon">
+                            </div>
+                            <p class="font-semibold transition-all duration-300 hover:text-white">Pengaturan Jam Masuk</p>
                         </a>
                     </li>
                     <li>

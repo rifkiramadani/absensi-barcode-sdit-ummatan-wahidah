@@ -30,6 +30,17 @@
         </div>
     @endif
 
+    {{-- Alert Error (Jika gagal hapus) --}}
+    @if (session('error'))
+        <div class="flex p-4 mt-6 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50" role="alert">
+            <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z" />
+            </svg>
+            <div><span class="font-bold">Gagal!</span> {{ session('error') }}</div>
+        </div>
+    @endif
+
     <div class="flex flex-col mt-8">
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
