@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SchoolClassController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/schoolClass/{schoolClass}/edit', [SchoolClassController::class, 'edit'])->name('school_class.edit');
     Route::put('/schoolClass/{schoolClass}', [SchoolClassController::class, 'update'])->name('school_class.update');
     Route::delete('schoolClass/{schoolClass}', [SchoolClassController::class, 'destroy'])->name('school_class.destroy');
+
+    //ROUTE FOR TIME SETTINGS
+    Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+    Route::put('/setting', [SettingController::class, 'update'])->name('setting.update');
 });
 
 require __DIR__.'/auth.php';
