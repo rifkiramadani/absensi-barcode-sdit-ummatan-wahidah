@@ -87,8 +87,17 @@
                                         <span class="px-2 py-1 text-xs font-bold text-pink-600 border border-pink-200 rounded-md bg-pink-50">PEREMPUAN</span>
                                     @endif
                                 </td>
-                                <td class="px-3 py-4 font-mono text-sm text-gray-600 whitespace-nowrap">
-                                    {{ $s->rfid_uid }}
+                               <td class="px-3 py-4 whitespace-nowrap">
+                                    <div class="flex flex-col items-center gap-1">
+                                        {{-- Generate Barcode dari rfid_uid --}}
+                                        <div class="barcode-container">
+                                            {!! DNS1D::getBarcodeHTML($s->rfid_uid, 'C128', 1.5, 33) !!}
+                                        </div>
+                                        {{-- Teks RFID UID di bawahnya --}}
+                                        <span class="font-mono text-xs tracking-widest text-gray-600">
+                                            {{ $s->rfid_uid }}
+                                        </span>
+                                    </div>
                                 </td>
                                 <td class="relative py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
                                     <div class="flex justify-end gap-3">
