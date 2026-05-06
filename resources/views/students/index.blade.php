@@ -91,7 +91,7 @@
                                     <div class="flex flex-col items-center gap-1">
                                         {{-- Generate Barcode dari rfid_uid --}}
                                         <div class="barcode-container">
-                                            {!! DNS1D::getBarcodeHTML($s->rfid_uid, 'C128', 1.5, 33) !!}
+                                            {!! DNS2D::getBarcodeHTML($s->rfid_uid, 'QRCODE', 3, 3) !!}
                                         </div>
                                         {{-- Teks RFID UID di bawahnya --}}
                                         <span class="font-mono text-xs tracking-widest text-gray-600">

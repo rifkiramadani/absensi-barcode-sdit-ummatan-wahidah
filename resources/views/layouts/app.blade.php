@@ -101,7 +101,7 @@
 
                     {{-- Scan Absensi --}}
                     <li>
-                        <a href="#"
+                        <a href="{{route('scan.index')}}"
                            class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300
                            {{ request()->is('scan*') ? 'bg-[#2B82FE] text-white shadow-lg shadow-blue-200' : 'text-[#7F8190] hover:bg-[#2B82FE] hover:text-white' }}">
                             <div class="flex shrink-0">
@@ -109,6 +109,18 @@
                                      class="w-6 h-6 {{ request()->is('scan*') ? 'brightness-0 invert' : '' }}">
                             </div>
                             <p class="font-semibold">Scan Absensi</p>
+                        </a>
+                    </li>
+                    {{-- Rekap Absensi --}}
+                    <li>
+                        <a href="{{ route('attendance.recap') }}"
+                        class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300
+                        {{ request()->routeIs('attendance.recap') ? 'bg-[#2B82FE] text-white shadow-lg shadow-blue-200' : 'text-[#7F8190] hover:bg-[#2B82FE] hover:text-white' }}">
+                            <div class="flex shrink-0">
+                                <img src="{{ asset('assets/images/icons/sms-tracking.svg') }}" alt="icon"
+                                    class="w-6 h-6 {{ request()->routeIs('attendance.recap') ? 'brightness-0 invert' : '' }}">
+                            </div>
+                            <p class="font-semibold">Rekap Absensi</p>
                         </a>
                     </li>
                 </ul>

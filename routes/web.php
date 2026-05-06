@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScanController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StudentController;
@@ -40,6 +42,14 @@ Route::middleware('auth')->group(function () {
     //ROUTE FOR TIME SETTINGS
     Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
     Route::put('/setting', [SettingController::class, 'update'])->name('setting.update');
+
+    // ROUTE FOR SCAN ABSENSI
+    Route::get('/scan', [ScanController::class, 'index'])->name('scan.index');
+    Route::post('/scan/store', [ScanController::class, 'store'])->name('scan.store');
+
+    // ROUTE FOR ATTENDANCE RECAP
+    Route::get('/attendance/recap', [AttendanceController::class, 'recap'])->name('attendance.recap');
+    Route::get('/attendance/export', [AttendanceController::class, 'exportExcel'])->name('attendance.export');
 });
 
 require __DIR__.'/auth.php';

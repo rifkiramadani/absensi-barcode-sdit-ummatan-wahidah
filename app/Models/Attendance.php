@@ -10,7 +10,9 @@ class Attendance extends Model
 
     protected $fillable = [
         'student_id',
-        'scan_time',
+        'date',      // Tambahkan ini
+        'check_in',  // Tambahkan ini
+        'check_out', // Tambahkan ini
         'status',
     ];
 
