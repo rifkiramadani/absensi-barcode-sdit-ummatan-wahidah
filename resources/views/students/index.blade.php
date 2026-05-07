@@ -67,7 +67,7 @@
                         <th class="py-4 pl-6 pr-3 text-xs font-black text-[#773DCE] uppercase tracking-wider text-left">Profil</th>
                         <th class="px-3 py-4 text-xs font-black text-[#773DCE] uppercase tracking-wider text-left">NISN / NIK</th>
                         <th class="px-3 py-4 text-xs font-black text-[#773DCE] uppercase tracking-wider text-left">Kelas</th>
-                        <th class="px-3 py-4 text-xs font-black text-[#773DCE] uppercase tracking-wider text-left">Gender</th>
+                        <th class="px-3 py-4 text-xs font-black text-[#773DCE] uppercase tracking-wider text-left">Jenis Kelamin</th>
                         <th class="px-3 py-4 text-xs font-black text-[#773DCE] uppercase tracking-wider text-center">RFID UID</th>
                         <th class="relative py-4 pl-3 pr-6 text-xs font-black text-[#773DCE] uppercase tracking-wider text-right">Aksi</th>
                     </tr>
