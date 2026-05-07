@@ -70,6 +70,7 @@
                             ['route' => 'school_class.index', 'icon' => 'fa-school-flag', 'label' => 'Data Kelas'],
                             ['route' => 'setting.index', 'icon' => 'fa-clock-rotate-left', 'label' => 'Jam Masuk'],
                             ['route' => 'scan.index', 'icon' => 'fa-qrcode', 'label' => 'Scan Absensi'],
+                            ['route' => 'attendance.recap', 'icon' => 'fa-file-invoice', 'label' => 'Rekap Absensi'],
                         ];
                     @endphp
 
