@@ -3,28 +3,36 @@
 @section('title', 'Tambah Kelas')
 
 @section('content')
-    <div class="max-w-2xl p-8 mx-auto bg-white border border-gray-100 shadow-md rounded-xl">
-        <h2 class="pb-4 mb-6 text-2xl font-bold text-gray-800 border-b">Tambah Kelas Baru</h2>
+    <div class="max-w-2xl p-8 mx-auto bg-white border border-gray-100 shadow-sm rounded-2xl">
+        <div class="flex items-center gap-3 pb-4 mb-6 border-b border-gray-50">
+            <div class="p-2 bg-purple-50 rounded-lg text-[#773DCE]">
+                <i class="text-xl fa-solid fa-school"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">Tambah Kelas Baru</h2>
+        </div>
 
         <form action="{{ route('school_class.store') }}" method="POST">
             @csrf
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700">Nama Kelas</label>
+            <div class="mb-8">
+                <label class="block text-sm font-bold text-gray-700">Nama Kelas</label>
                 <input type="text" name="name" value="{{ old('name') }}"
-                    class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm @error('name') border-red-500 @enderror"
-                    placeholder="Contoh: Kelas 1-A" required>
+                    class="block w-full mt-2 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm @error('name') border-red-300 @enderror"
+                    placeholder="Contoh: Kelas 1-A" required autofocus>
 
-                {{-- Error Spesifik di Bawah Form --}}
                 @error('name')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="flex items-center gap-1 mt-2 text-xs text-red-600">
+                        <i class="fa-solid fa-circle-exclamation"></i> {{ $message }}
+                    </p>
                 @enderror
             </div>
 
-            <div class="flex justify-end gap-3">
+            <div class="flex justify-end gap-3 pt-4">
                 <a href="{{ route('school_class.index') }}"
-                    class="px-4 py-2 text-gray-600 border rounded-md hover:bg-gray-50">Batal</a>
+                    class="px-6 py-2.5 text-sm font-bold text-gray-500 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all">Batal</a>
                 <button type="submit"
-                    class="px-6 py-2 text-white bg-blue-600 rounded-md shadow-lg hover:bg-blue-700">Simpan Kelas</button>
+                    class="px-8 py-2.5 text-sm font-bold text-white bg-[#773DCE] rounded-xl shadow-lg shadow-purple-200 hover:bg-[#5e2faf] transition-all">
+                    Simpan Kelas
+                </button>
             </div>
         </form>
     </div>
