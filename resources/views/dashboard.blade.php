@@ -54,7 +54,8 @@
         <div class="flex flex-col gap-6 lg:col-span-1">
             <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-3xl h-fit">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-lg font-extrabold text-gray-800">🔍 Filter Data</h2>
+                    <h2 class="text-lg font-extrabold text-gray-800">
+                        <i class="fa-solid fa-magnifying-glass text-[#773DCE]"></i> Filter Data</h2>
                     @if(request('tanggal'))
                         <a href="{{ route('dashboard') }}" class="text-[10px] font-bold text-red-500 uppercase hover:underline">Reset</a>
                     @endif
@@ -77,7 +78,8 @@
         <div class="lg:col-span-2">
             <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-3xl">
                 <div class="flex flex-col gap-1 mb-8">
-                    <h2 class="text-lg font-extrabold text-gray-800">📊 Diagram Kehadiran</h2>
+                    <h2 class="text-lg font-extrabold text-gray-800">
+                        <i class="fa-solid fa-chart-simple text-[#773DCE]"></i> Diagram Kehadiran</h2>
                     <p class="text-xs font-bold text-[#773DCE]">{{ \Carbon\Carbon::parse($tanggalSelected)->format('d F Y') }}</p>
                 </div>
 
