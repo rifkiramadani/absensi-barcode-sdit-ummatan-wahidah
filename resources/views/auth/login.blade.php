@@ -64,12 +64,12 @@
                 </div>
 
                 {{-- Remember Me --}}
-                <div class="flex items-center justify-between">
+                {{-- <div class="flex items-center justify-between">
                     <label class="flex items-center text-sm text-gray-600 cursor-pointer">
                         <input type="checkbox" name="remember" class="w-4 h-4 mr-2 border-gray-300 rounded text-[#773DCE] focus:ring-[#773DCE]">
                         Ingat Saya
                     </label>
-                </div>
+                </div> --}}
 
                 {{-- Login Button (Warna Ungu Sekolah) --}}
                 <button type="submit" class="w-full py-3.5 px-5 text-white bg-[#773DCE] hover:bg-[#622eb1] font-bold rounded-xl shadow-lg shadow-purple-200 transition duration-300 transform active:scale-95">

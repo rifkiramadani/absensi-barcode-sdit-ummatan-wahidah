@@ -89,8 +89,8 @@
                 attendanceStatus: '',
                 timeout: null,
                 // Menggunakan audio yang lebih clean
-                audioSuccess: new Audio('https://assets.mixkit.co/active_storage/sfx/2216/2216-preview.mp3'),
-                audioError: new Audio('https://assets.mixkit.co/active_storage/sfx/2190/2190-preview.mp3'),
+                audioSuccess: new Audio("{{ asset('assets/sounds/beep.mp3') }}"),
+                audioError: new Audio("{{ asset('assets/sounds/beep.mp3') }}"),
 
                 handleInput() {
                     clearTimeout(this.timeout);
