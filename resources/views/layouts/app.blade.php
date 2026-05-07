@@ -8,165 +8,148 @@
     <title>@yield('title', 'Dashboard') - SDITUW</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- Alpine.js untuk Dropdown --}}
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    {{-- <style>
-        /* Mengubah warna background item aktif menjadi biru */
-        nav[role="navigation"] span[aria-current="page"] span {
-            background-color: #2B82FE !important;
-            border-color: #2B82FE !important;
-            color: white !important;
-        }
-
-        /* Mengubah warna teks angka yang tidak aktif menjadi biru saat hover */
-        nav[role="navigation"] a:hover {
-            color: #2B82FE !important;
-        }
-
-        /* Memastikan transisi halus */
-        nav[role="navigation"] a, nav[role="navigation"] span {
-            transition: all 0.3s ease;
-        }
-    </style> --}}
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     <section id="content" class="flex">
-        <!-- SIDEBAR -->
-        <div id="sidebar" class="w-[270px] flex flex-col shrink-0 min-h-screen justify-between p-[30px] border-r border-[#EEEEEE] bg-[#FBFBFB]">
-            <div class="w-full flex flex-col gap-[30px]">
-                <a href="{{ route('dashboard') }}" class="flex items-center justify-center">
-                    <p class="text-2xl font-bold tracking-widest text-blue-600">SDITUW</p>
-                </a>
-                <ul class="flex flex-col gap-3">
+        <div id="sidebar" class="w-[280px] flex flex-col shrink-0 min-h-screen justify-between p-6 border-r border-gray-100 bg-[#FBFBFB]">
+            <div class="flex flex-col w-full gap-8">
+
+               {{-- Logo Section --}}
+                <div class="flex flex-col items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl">
+                    {{-- Container Logo (Berjejer) --}}
+                    <div class="flex items-center justify-center gap-3">
+                        <img src="{{ asset('assets/logosdit/sdit_ummatan_wahidah_logo.png') }}" alt="Logo SDIT" class="object-contain w-auto h-10">
+                        <div class="w-px h-8 bg-gray-200"></div>
+                        <img src="{{ asset('assets/logosdit/yayasan_assalam_logo.png') }}" alt="Logo Yayasan" class="object-contain w-auto h-10">
+                    </div>
+
+                    {{-- Teks Sistem Absensi --}}
+                    <div class="text-center">
+                        <p class="text-[10px] font-black leading-tight text-[#773DCE] uppercase tracking-tighter">
+                            Sistem Absensi
+                        </p>
+                        <p class="text-[9px] font-bold leading-tight text-gray-400 uppercase">
+                            SDIT Ummatan Wahidah
+                        </p>
+                    </div>
+                </div>
+
+                <ul class="flex flex-col gap-2">
                     <li>
-                        <h3 class="font-bold text-xs text-[#A5ABB2] uppercase tracking-wider">Menu Utama</h3>
+                        <h3 class="px-4 mb-2 text-xs font-bold tracking-widest text-gray-400 uppercase">Menu Utama</h3>
                     </li>
 
                     {{-- Dashboard --}}
                     <li>
                         <a href="{{ route('dashboard') }}"
-                           class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300
-                           {{ request()->routeIs('dashboard') ? 'bg-[#2B82FE] text-white shadow-lg shadow-blue-200' : 'text-[#7F8190] hover:bg-[#2B82FE] hover:text-white' }}">
-                            <div class="flex shrink-0">
-                                <img src="{{ asset('assets/images/icons/home-hashtag.svg') }}" alt="icon"
-                                     class="w-6 h-6 {{ request()->routeIs('dashboard') ? 'brightness-0 invert' : '' }}">
-                            </div>
-                            <p class="font-semibold">Dashboard</p>
+                        class="group p-3 flex items-center gap-4 rounded-xl transition-all duration-300
+                        {{ request()->routeIs('dashboard')
+                                ? 'bg-[#773DCE] text-white shadow-lg shadow-purple-200'
+                                : 'text-[#7F8190] hover:bg-[#773DCE] hover:text-white hover:shadow-lg hover:shadow-purple-100' }}">
+                            <i class="text-lg fa-solid fa-house-chimney transition-colors duration-300
+                                {{ request()->routeIs('dashboard') ? 'text-white' : 'group-hover:text-white' }}"></i>
+                            <p class="text-sm font-bold transition-colors duration-300">Dashboard</p>
                         </a>
                     </li>
 
                     {{-- Data Siswa --}}
                     <li>
                         <a href="{{ route('student.index') }}"
-                           class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300
-                           {{ request()->routeIs('student.*') ? 'bg-[#2B82FE] text-white shadow-lg shadow-blue-200' : 'text-[#7F8190] hover:bg-[#2B82FE] hover:text-white' }}">
-                            <div class="flex shrink-0">
-                                <img src="{{ asset('assets/images/icons/profile-2user.svg') }}" alt="icon"
-                                     class="w-6 h-6 {{ request()->routeIs('student.*') ? 'brightness-0 invert' : '' }}">
-                            </div>
-                            <p class="font-semibold">Data Siswa</p>
+                        class="group p-3 flex items-center gap-4 rounded-xl transition-all duration-300
+                        {{ request()->routeIs('student.*')
+                                ? 'bg-[#773DCE] text-white shadow-lg shadow-purple-200'
+                                : 'text-[#7F8190] hover:bg-[#773DCE] hover:text-white hover:shadow-lg hover:shadow-purple-100' }}">
+                            <i class="text-lg fa-solid fa-users-rectangle transition-colors duration-300
+                                {{ request()->routeIs('student.*') ? 'text-white' : 'group-hover:text-white' }}"></i>
+                            <p class="text-sm font-bold transition-colors duration-300">Data Siswa</p>
                         </a>
                     </li>
 
                     {{-- Data Kelas --}}
                     <li>
                         <a href="{{ route('school_class.index') }}"
-                           class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300
-                           {{ request()->routeIs('school_class.*') ? 'bg-[#2B82FE] text-white shadow-lg shadow-blue-200' : 'text-[#7F8190] hover:bg-[#2B82FE] hover:text-white' }}">
-                            <div class="flex shrink-0">
-                                <img src="{{ asset('assets/images/icons/profile-2user.svg') }}" alt="icon"
-                                     class="w-6 h-6 {{ request()->routeIs('school_class.*') ? 'brightness-0 invert' : '' }}">
-                            </div>
-                            <p class="font-semibold">Data Kelas</p>
+                        class="group p-3 flex items-center gap-4 rounded-xl transition-all duration-300
+                        {{ request()->routeIs('school_class.*')
+                                ? 'bg-[#773DCE] text-white shadow-lg shadow-purple-200'
+                                : 'text-[#7F8190] hover:bg-[#773DCE] hover:text-white hover:shadow-lg hover:shadow-purple-100' }}">
+                            <i class="text-lg fa-solid fa-school-flag transition-colors duration-300
+                                {{ request()->routeIs('school_class.*') ? 'text-white' : 'group-hover:text-white' }}"></i>
+                            <p class="text-sm font-bold transition-colors duration-300">Data Kelas</p>
                         </a>
                     </li>
 
                     <li>
-                        <h3 class="font-bold text-xs text-[#A5ABB2] uppercase tracking-wider mt-4">Sistem</h3>
+                        <h3 class="px-4 mt-6 mb-2 text-xs font-bold tracking-widest text-gray-400 uppercase">Sistem</h3>
                     </li>
 
-                    {{-- Pengaturan Jam --}}
+                    {{-- Jam Masuk --}}
                     <li>
                         <a href="{{ route('setting.index') }}"
-                           class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300
-                           {{ request()->routeIs('setting.*') ? 'bg-[#2B82FE] text-white shadow-lg shadow-blue-200' : 'text-[#7F8190] hover:bg-[#2B82FE] hover:text-white' }}">
-                            <div class="flex shrink-0">
-                                <img src="{{ asset('assets/images/icons/profile-2user.svg') }}" alt="icon"
-                                     class="w-6 h-6 {{ request()->routeIs('setting.*') ? 'brightness-0 invert' : '' }}">
-                            </div>
-                            <p class="font-semibold">Jam Masuk</p>
+                        class="group p-3 flex items-center gap-4 rounded-xl transition-all duration-300
+                        {{ request()->routeIs('setting.*')
+                                ? 'bg-[#773DCE] text-white shadow-lg shadow-purple-200'
+                                : 'text-[#7F8190] hover:bg-[#773DCE] hover:text-white hover:shadow-lg hover:shadow-purple-100' }}">
+                            <i class="text-lg fa-solid fa-clock-rotate-left transition-colors duration-300
+                                {{ request()->routeIs('setting.*') ? 'text-white' : 'group-hover:text-white' }}"></i>
+                            <p class="text-sm font-bold transition-colors duration-300">Jam Masuk</p>
                         </a>
                     </li>
 
                     {{-- Scan Absensi --}}
                     <li>
-                        <a href="{{route('scan.index')}}"
-                           class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300
-                           {{ request()->is('scan*') ? 'bg-[#2B82FE] text-white shadow-lg shadow-blue-200' : 'text-[#7F8190] hover:bg-[#2B82FE] hover:text-white' }}">
-                            <div class="flex shrink-0">
-                                <img src="{{ asset('assets/images/icons/sms-tracking.svg') }}" alt="icon"
-                                     class="w-6 h-6 {{ request()->is('scan*') ? 'brightness-0 invert' : '' }}">
-                            </div>
-                            <p class="font-semibold">Scan Absensi</p>
+                        <a href="{{ route('scan.index') }}"
+                        class="group p-3 flex items-center gap-4 rounded-xl transition-all duration-300
+                        {{ request()->is('scan*')
+                                ? 'bg-[#773DCE] text-white shadow-lg shadow-purple-200'
+                                : 'text-[#7F8190] hover:bg-[#773DCE] hover:text-white hover:shadow-lg hover:shadow-purple-100' }}">
+                            <i class="text-lg fa-solid fa-qrcode transition-colors duration-300
+                                {{ request()->is('scan*') ? 'text-white' : 'group-hover:text-white' }}"></i>
+                            <p class="text-sm font-bold transition-colors duration-300">Scan Absensi</p>
                         </a>
                     </li>
+
                     {{-- Rekap Absensi --}}
                     <li>
                         <a href="{{ route('attendance.recap') }}"
-                        class="p-[10px_16px] flex items-center gap-[14px] rounded-full h-11 transition-all duration-300
-                        {{ request()->routeIs('attendance.recap') ? 'bg-[#2B82FE] text-white shadow-lg shadow-blue-200' : 'text-[#7F8190] hover:bg-[#2B82FE] hover:text-white' }}">
-                            <div class="flex shrink-0">
-                                <img src="{{ asset('assets/images/icons/sms-tracking.svg') }}" alt="icon"
-                                    class="w-6 h-6 {{ request()->routeIs('attendance.recap') ? 'brightness-0 invert' : '' }}">
-                            </div>
-                            <p class="font-semibold">Rekap Absensi</p>
+                        class="group p-3 flex items-center gap-4 rounded-xl transition-all duration-300
+                        {{ request()->routeIs('attendance.recap')
+                                ? 'bg-[#773DCE] text-white shadow-lg shadow-purple-200'
+                                : 'text-[#7F8190] hover:bg-[#773DCE] hover:text-white hover:shadow-lg hover:shadow-purple-100' }}">
+                            <i class="text-lg fa-solid fa-file-invoice transition-colors duration-300
+                                {{ request()->routeIs('attendance.recap') ? 'text-white' : 'group-hover:text-white' }}"></i>
+                            <p class="text-sm font-bold transition-colors duration-300">Rekap Absensi</p>
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
 
-        <!-- MAIN CONTENT AREA -->
-        <div id="menu-content" class="flex flex-col w-full pb-[30px]">
-            <!-- TOP NAV -->
-            <div class="nav flex justify-end p-5 border-b border-[#EEEEEE] bg-white">
-                <div class="flex items-center gap-[30px]">
-                    <div class="h-[46px] w-[1px] flex shrink-0 border border-[#EEEEEE]"></div>
-
-                    <!-- Dropdown User -->
+        <div id="menu-content" class="flex flex-col w-full">
+            <div class="flex justify-end px-8 py-4 bg-white border-b border-gray-100 nav">
+                <div class="flex items-center gap-6">
                     <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" @click.outside="open = false" class="flex items-center gap-3 focus:outline-none">
+                        <button @click="open = !open" @click.outside="open = false" class="flex items-center gap-3 focus:outline-none group">
                             <div class="flex flex-col text-right">
-                                <p class="text-xs text-[#7F8190]">Administrator</p>
-                                <p class="text-sm font-bold text-gray-800">{{ auth()->user()->name }}</p>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Administrator</p>
+                                <p class="text-sm font-extrabold text-gray-800 group-hover:text-[#773DCE] transition">{{ auth()->user()->name }}</p>
                             </div>
-                            <div class="w-[46px] h-[46px] border-2 border-blue-500 rounded-full p-0.5">
+                            <div class="w-11 h-11 border-2 border-[#773DCE] rounded-full p-0.5 shadow-sm">
                                 <img src="{{ asset('assets/images/photos/default-photo.svg') }}" alt="photo" class="object-cover w-full h-full rounded-full">
                             </div>
                         </button>
 
-                        <div x-show="open"
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 scale-95"
-                            x-transition:enter-end="opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-75"
-                            x-transition:leave-start="opacity-100 scale-100"
-                            x-transition:leave-end="opacity-0 scale-95"
-                            class="absolute right-0 z-50 w-48 py-2 mt-2 bg-white border border-gray-200 shadow-xl rounded-xl"
-                            style="display: none;">
-
-                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100">
-                                Edit Profile
+                        <div x-show="open" style="display: none;"
+                            class="absolute right-0 z-50 w-48 py-2 mt-3 bg-white border border-gray-100 shadow-2xl rounded-2xl">
+                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-purple-50 hover:text-[#773DCE]">
+                                <i class="mr-2 fa-solid fa-user-gear"></i> Edit Profile
                             </a>
-
-                            <hr class="my-1 border-gray-100">
-
+                            <hr class="my-2 border-gray-50">
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="w-full px-4 py-2 text-sm font-semibold text-left text-red-600 transition hover:bg-red-50">
-                                    Logout
+                                <button type="submit" class="w-full px-4 py-2 text-sm font-bold text-left text-red-500 hover:bg-red-50">
+                                    <i class="mr-2 fa-solid fa-power-off"></i> Logout
                                 </button>
                             </form>
                         </div>
@@ -174,7 +157,6 @@
                 </div>
             </div>
 
-            <!-- DYNAMIC CONTENT -->
             <div class="w-full p-8">
                 @yield('content')
             </div>
