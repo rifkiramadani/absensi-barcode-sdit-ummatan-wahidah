@@ -56,4 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
 });
 
+// COLOR PALLET
+// #773DCE UNGU
+// #1DF01A HIJAU
+
 require __DIR__.'/auth.php';

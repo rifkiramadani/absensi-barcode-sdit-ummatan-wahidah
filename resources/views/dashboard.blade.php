@@ -14,7 +14,9 @@
     {{-- Stats Cards (JUMLAH SISWA, KELAS, REKAP) --}}
     <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
         <div class="bg-white p-6 rounded-2xl border border-[#EEEEEE] shadow-sm flex items-center gap-5">
-            <div class="flex items-center justify-center text-2xl text-blue-600 rounded-full w-14 h-14 bg-blue-50">👥</div>
+            <div class="flex items-center justify-center text-2xl text-blue-600 rounded-full w-14 h-14 bg-blue-50">
+                <i class="fa-solid fa-users"></i>
+            </div>
             <div class="flex flex-col">
                 <p class="text-xs text-[#7F8190] font-semibold uppercase tracking-wider">Total Siswa</p>
                 <h3 class="mt-1 text-2xl font-bold text-gray-800">{{ $totalSiswa }} <span class="text-sm font-normal text-gray-500">Anak</span></h3>
@@ -22,7 +24,9 @@
         </div>
 
         <div class="bg-white p-6 rounded-2xl border border-[#EEEEEE] shadow-sm flex items-center gap-5">
-            <div class="flex items-center justify-center text-2xl text-green-600 rounded-full w-14 h-14 bg-green-50">🏫</div>
+            <div class="flex items-center justify-center text-2xl text-green-600 rounded-full w-14 h-14 bg-green-50">
+                <i class="fa-solid fa-school"></i>
+            </div>
             <div class="flex flex-col">
                 <p class="text-xs text-[#7F8190] font-semibold uppercase tracking-wider">Total Kelas</p>
                 <h3 class="mt-1 text-2xl font-bold text-gray-800">{{ $totalKelas }} <span class="text-sm font-normal text-gray-500">Kelas</span></h3>
@@ -30,7 +34,9 @@
         </div>
 
         <div class="bg-white p-6 rounded-2xl border border-[#EEEEEE] shadow-sm flex items-center gap-5">
-            <div class="flex items-center justify-center text-2xl rounded-full w-14 h-14 bg-amber-50 text-amber-600">📝</div>
+            <div class="flex items-center justify-center text-2xl rounded-full w-14 h-14 bg-amber-50 text-amber-600">
+                <i class="fa-solid fa-clipboard-user"></i>
+            </div>
             <div class="flex flex-col">
                 <p class="text-xs text-[#7F8190] font-semibold uppercase tracking-wider">Total Absen Terdata</p>
                 <h3 class="mt-1 text-2xl font-bold text-gray-800">{{ $totalAbsensi }} <span class="text-sm font-normal text-gray-500">Rekap</span></h3>
