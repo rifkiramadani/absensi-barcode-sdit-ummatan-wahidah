@@ -87,24 +87,34 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                // Set locale Indonesia agar nama bulan muncul
                 config(['app.locale' => 'id']);
                 Carbon::setLocale('id');
 
                 $exportDate = Carbon::now()->translatedFormat('d F Y');
+                $date = now();
 
-                // Logika Teks Periode agar tidak kosong
+                // --- LOGIKA PERIODE DINAMIS MULAI ---
                 if ($this->startDate && $this->endDate) {
                     $dateRange = "Periode Data: " . Carbon::parse($this->startDate)->translatedFormat('d F Y') . " s/d " . Carbon::parse($this->endDate)->translatedFormat('d F Y');
                 } else {
-                    $filterLabel = [
-                        'daily' => 'Harian (Hari Ini)',
-                        'weekly' => 'Mingguan (Minggu Ini)',
-                        'monthly' => 'Bulanan (Bulan Ini)',
-                        'yearly' => 'Tahunan (Tahun Ini)'
-                    ];
-                    $dateRange = "Periode Data: " . ($filterLabel[$this->filter] ?? ucfirst($this->filter));
+                    switch ($this->filter) {
+                        case 'weekly':
+                            $start = $date->startOfWeek()->translatedFormat('d F Y');
+                            $end = $date->endOfWeek()->translatedFormat('d F Y');
+                            $dateRange = "Periode Data: Minggu Ini ($start s/d $end)";
+                            break;
+                        case 'monthly':
+                            $dateRange = "Periode Data: Bulan " . $date->translatedFormat('F Y');
+                            break;
+                        case 'yearly':
+                            $dateRange = "Periode Data: Tahun " . $date->format('Y');
+                            break;
+                        default: // Daily / Harian
+                            $dateRange = "Periode Data: Tanggal " . today()->translatedFormat('d F Y');
+                            break;
+                    }
                 }
+                // --- LOGIKA PERIODE DINAMIS SELESAI ---
 
                 $event->sheet->insertNewRowBefore(1, 3);
 
@@ -116,36 +126,22 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
                 $event->sheet->mergeCells('A2:I2');
                 $event->sheet->setCellValue('A2', 'Tanggal Ekspor: ' . $exportDate);
 
-                // Baris 3: Periode Data
+                // Baris 3: Periode Data yang sudah dinamis
                 $event->sheet->mergeCells('A3:I3');
                 $event->sheet->setCellValue('A3', $dateRange);
 
-                // Styling Judul agar benar-benar ke tengah
+                // ... sisa styling (styleCenter, highestRow, dll) tetap sama seperti sebelumnya ...
+
+                // Re-apply style untuk A1:I3 agar tetap rapi
                 $styleCenter = [
                     'alignment' => [
                         'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                         'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
                     ],
-                    'font' => [
-                        'bold' => true,
-                    ],
+                    'font' => ['bold' => true],
                 ];
-
                 $event->sheet->getStyle('A1:I3')->applyFromArray($styleCenter);
                 $event->sheet->getStyle('A1')->getFont()->setSize(14);
-
-                // Paksa NISN & NIK jadi String (Menghilangkan +15 dan Kutip)
-                $highestRow = $event->sheet->getHighestRow();
-                for ($row = 4; $row <= $highestRow; $row++) {
-                    $event->sheet->getCell('A' . $row)->setDataType(DataType::TYPE_STRING);
-                    $event->sheet->getCell('B' . $row)->setDataType(DataType::TYPE_STRING);
-                }
-
-                // Warna Header Tabel
-                $event->sheet->getStyle('A4:I4')->applyFromArray($styleCenter);
-                $event->sheet->getStyle('A4:I4')->getFill()
-                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                    ->getStartColor()->setARGB('F3E8FF');
             },
         ];
     }

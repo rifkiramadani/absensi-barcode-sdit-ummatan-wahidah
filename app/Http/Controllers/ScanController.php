@@ -16,34 +16,39 @@ class ScanController extends Controller
         return view('scans.index');
     }
 
-  public function store(Request $request)
+    public function store(Request $request)
     {
+        // 1. Validasi Input
         $request->validate(['rfid_uid' => 'required']);
         $rfid = trim($request->rfid_uid);
 
-        // 1. Cari Siswa
+        // 2. Cari Siswa berdasarkan RFID
         $student = Student::where('rfid_uid', $rfid)->first();
 
         if (!$student) {
-            return response()->json(['status' => 'error', 'message' => 'Siswa tidak ditemukan!'], 404);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kartu tidak terdaftar! Hubungi admin.'
+            ], 404);
         }
 
         $today = Carbon::today()->toDateString();
-        $now = Carbon::now()->toTimeString();
+        $now = Carbon::now(); // Mengambil object Carbon utuh agar lebih fleksibel
+        $currentTimeString = $now->toTimeString();
 
-        // Generate Barcode HTML (Reuseable untuk semua kondisi response)
+        // Generate Barcode HTML untuk tampilan di modal/view
         $barcodeHtml = \DNS2D::getBarcodeHTML($student->rfid_uid, 'QRCODE', 3, 3);
 
-        // 2. Cek apakah sudah ada record absensi hari ini
+        // 3. Cek apakah sudah ada record absensi hari ini
         $attendance = Attendance::where('student_id', $student->id)
                                 ->where('date', $today)
                                 ->first();
 
-        // LOGIKA ABSEN PULANG (CHECK OUT)
+        // --- LOGIKA ABSEN PULANG (Jika sudah ada absen masuk hari ini) ---
         if ($attendance) {
             if (is_null($attendance->check_out)) {
                 $attendance->update([
-                    'check_out' => $now
+                    'check_out' => $currentTimeString
                 ]);
 
                 return response()->json([
@@ -57,6 +62,7 @@ class ScanController extends Controller
                 ]);
             }
 
+            // Jika sudah absen masuk & sudah absen pulang
             return response()->json([
                 'status' => 'info',
                 'message' => $student->name . ' sudah menyelesaikan absensi hari ini.',
@@ -68,15 +74,25 @@ class ScanController extends Controller
             ]);
         }
 
-        // LOGIKA ABSEN MASUK (CHECK IN)
+        // --- LOGIKA ABSEN MASUK (Jika belum ada record hari ini) ---
+
+        // Ambil settingan waktu maksimal (max_time)
         $setting = Setting::first();
-        $jamMasukLimit = $setting ? $setting->start_time : '07:30:00';
-        $status = ($now <= $jamMasukLimit) ? 'Hadir' : 'Telat';
+
+        /* PERBAIKAN:
+           Menggunakan 'max_time' sesuai database.
+           Jika data setting kosong, default ke 07:30:00
+        */
+        $jamMasukLimit = $setting ? $setting->max_time : '07:30:00';
+
+        // Bandingkan waktu sekarang dengan batas waktu
+        // Jika 16:14 <= 18:00, maka 'Hadir'
+        $status = ($currentTimeString <= $jamMasukLimit) ? 'Hadir' : 'Telat';
 
         Attendance::create([
             'student_id' => $student->id,
             'date' => $today,
-            'check_in' => $now,
+            'check_in' => $currentTimeString,
             'status' => $status
         ]);
 
