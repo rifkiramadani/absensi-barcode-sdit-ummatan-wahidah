@@ -9,10 +9,22 @@ use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
-    public function index()
+   public function index(Request $request)
     {
-        $students = Student::with('schoolClass')->latest()->paginate(10);
-        return view('students.index', compact('students'));
+        // Ambil semua kelas untuk isi dropdown filter
+        $classes = SchoolClass::all();
+
+        // Query dasar dengan relasi
+        $query = Student::with('schoolClass');
+
+        // Filter jika ada input 'class_id'
+        if ($request->has('class_id') && $request->class_id != '') {
+            $query->where('school_class_id', $request->class_id);
+        }
+
+        $students = $query->latest()->paginate(10)->withQueryString();
+
+        return view('students.index', compact('students', 'classes'));
     }
 
     public function create()

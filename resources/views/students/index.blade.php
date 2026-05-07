@@ -17,15 +17,49 @@
         </div>
     </div>
 
+    {{-- Filter Section --}}
+    <div class="flex flex-col gap-4 mt-6 sm:flex-row sm:items-center sm:justify-between">
+        <form action="{{ route('student.index') }}" method="GET" class="flex items-center w-full max-w-xs gap-2">
+            <div class="relative w-full">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#773DCE]">
+                    <i class="text-xs fa-solid fa-filter"></i>
+                </div>
+                <select name="class_id" onchange="this.form.submit()"
+                    class="block w-full pl-10 pr-10 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:ring-purple-100 focus:border-[#773DCE] transition-all appearance-none cursor-pointer">
+                    <option value="">Semua Kelas</option>
+                    @foreach ($classes as $class)
+                        <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>
+                            Kelas {{ $class->name }}
+                        </option>
+                    @endforeach
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                </div>
+            </div>
+
+            @if(request('class_id'))
+                <a href="{{ route('student.index') }}" class="p-2.5 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition-colors" title="Reset Filter">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+            @endif
+        </form>
+
+        <div class="text-xs font-medium text-gray-400">
+            Menampilkan <span class="font-bold text-gray-700">{{ $students->firstItem() ?? 0 }}-{{ $students->lastItem() ?? 0 }}</span> dari <span class="font-bold text-gray-700">{{ $students->total() }}</span> siswa
+        </div>
+    </div>
+
     {{-- Alert Section --}}
     @if (session('success'))
-        <div class="flex p-4 mt-6 text-sm text-green-800 border border-green-200 rounded-xl bg-green-50" role="alert">
+        <div class="flex p-4 mt-4 text-sm text-green-800 border border-green-200 rounded-xl bg-green-50" role="alert">
             <i class="mt-1 mr-3 text-lg fa-solid fa-circle-check"></i>
             <div><span class="font-bold">Berhasil!</span> {{ session('success') }}</div>
         </div>
     @endif
 
-    <div class="flex flex-col mt-8">
+    {{-- Table Section --}}
+    <div class="flex flex-col mt-4">
         <div class="overflow-x-auto shadow-sm ring-1 ring-gray-100 md:rounded-2xl">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-purple-50">
@@ -39,8 +73,9 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-100">
-                    @foreach ($students as $s)
+                    @forelse ($students as $s)
                     <tr class="transition-colors hover:bg-gray-50/50">
+                        {{-- ... (Isi <td> sama seperti kode sebelumnya) ... --}}
                         <td class="py-4 pl-6 pr-3 whitespace-nowrap">
                             <div class="flex items-center">
                                 <img class="object-cover w-10 h-10 border-2 border-white rounded-full shadow-sm ring-1 ring-gray-100"
@@ -92,7 +127,16 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <i class="mb-3 text-4xl text-gray-200 fa-solid fa-user-slash"></i>
+                                <p class="text-sm font-medium text-gray-400">Tidak ada data siswa ditemukan.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
