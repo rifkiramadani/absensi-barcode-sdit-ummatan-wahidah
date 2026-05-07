@@ -1,52 +1,66 @@
 <x-guest-layout>
-        <div class="w-full max-w-md p-8 rounded-2xl">
+        <div class="w-full max-w-md p-8 bg-white border border-gray-100 shadow-2xl rounded-3xl">
 
-            <h2 class="mb-6 text-2xl font-bold text-center text-gray-800">
-                Sistem Absensi <br> SDIT UMMATAN WAHIDAH
+            <div class="flex justify-center mb-6">
+                <div class="p-4 text-3xl bg-blue-50 rounded-2xl">
+                    🏫
+                </div>
+            </div>
+
+            <h2 class="mb-2 text-2xl font-extrabold text-center text-gray-800">
+                Sistem Absensi
             </h2>
+            <p class="mb-8 text-sm font-medium tracking-widest text-center text-gray-500 uppercase">
+                SDIT Ummatan Wahidah
+            </p>
 
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}" class="space-y-5">
                 @csrf
 
-                <!-- Email -->
-                <div class="mb-4">
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" name="email"
-                        value="{{ old('email') }}"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        placeholder="email@gmail.com" required>
+                <div>
+                    <label class="block mb-2 text-xs font-bold text-gray-600 uppercase">Email Address</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-400">
+                            📧
+                        </span>
+                        <input type="email" name="email" value="{{ old('email') }}"
+                            class="w-full py-3 pl-10 pr-4 text-sm text-gray-900 transition duration-200 border border-gray-200 outline-none bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="nama@email.com" required autofocus>
+                    </div>
                 </div>
 
-                <!-- Password -->
-                <div class="mb-4">
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" name="password"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        placeholder="••••••••" required>
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="text-xs font-bold text-gray-600 uppercase">Password</label>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-400">
+                            🔒
+                        </span>
+                        <input type="password" name="password"
+                            class="w-full py-3 pl-10 pr-4 text-sm text-gray-900 transition duration-200 border border-gray-200 outline-none bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="••••••••" required>
+                    </div>
                 </div>
 
-                <!-- Remember -->
-                <div class="flex items-center justify-between mb-4">
-                    <label class="flex items-center text-sm text-gray-600">
-                        <input type="checkbox" name="remember" class="mr-2">
-                        Remember me
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                        <input type="checkbox" name="remember" class="w-4 h-4 mr-2 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        Ingat Saya
                     </label>
                 </div>
 
-                <!-- Button -->
                 <button type="submit"
-                    class="w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                    Login
+                    class="w-full py-3.5 px-5 text-white bg-blue-600 hover:bg-blue-700 font-bold rounded-xl text-sm shadow-lg shadow-blue-200 transition duration-300 transform hover:-translate-y-0.5 active:scale-95">
+                    Masuk Sekarang
                 </button>
 
-                <!-- Register -->
-                <p class="mt-4 text-sm text-center text-gray-500">
+                <p class="pt-4 text-sm text-center text-gray-500">
                     Belum punya akun?
-                    <a href="{{ route('register') }}" class="text-blue-600 hover:underline">
-                        Daftar
+                    <a href="{{ route('register') }}" class="font-bold text-blue-600 transition duration-200 hover:text-blue-800">
+                        Buat Akun
                     </a>
                 </p>
-
             </form>
         </div>
 </x-guest-layout>
