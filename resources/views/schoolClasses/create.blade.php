@@ -17,7 +17,7 @@
                 <label class="block text-sm font-bold text-gray-700">Nama Kelas</label>
                 <input type="text" name="name" value="{{ old('name') }}"
                     class="block w-full mt-2 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm @error('name') border-red-300 @enderror"
-                    placeholder="Contoh: Kelas 1-A" required autofocus>
+                    placeholder="Contoh: Kelas 1A" required autofocus>
 
                 @error('name')
                     <p class="flex items-center gap-1 mt-2 text-xs text-red-600">
