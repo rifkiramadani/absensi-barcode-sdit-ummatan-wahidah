@@ -17,10 +17,22 @@
         </div>
     </div>
 
-    {{-- Filter Section --}}
-    <div class="flex flex-col gap-4 mt-6 sm:flex-row sm:items-center sm:justify-between">
-        <form action="{{ route('student.index') }}" method="GET" class="flex items-center w-full max-w-xs gap-2">
-            <div class="relative w-full">
+    {{-- Filter & Search Section --}}
+    <div class="flex flex-col gap-4 mt-6 lg:flex-row lg:items-center lg:justify-between">
+        <form action="{{ route('student.index') }}" method="GET" class="flex flex-col items-center w-full gap-3 md:flex-row">
+
+            {{-- Input Search --}}
+            <div class="relative w-full md:w-80">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+                    <i class="text-xs fa-solid fa-magnifying-glass"></i>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari Nama, NISN, atau NIK..."
+                    class="block w-full pl-10 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-purple-100 focus:border-[#773DCE] transition-all">
+            </div>
+
+            {{-- Dropdown Filter Kelas --}}
+            <div class="relative w-full md:w-52">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#773DCE]">
                     <i class="text-xs fa-solid fa-filter"></i>
                 </div>
@@ -38,11 +50,18 @@
                 </div>
             </div>
 
-            @if(request('class_id'))
-                <a href="{{ route('student.index') }}" class="p-2.5 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition-colors" title="Reset Filter">
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
-            @endif
+            {{-- Tombol Cari & Reset --}}
+            <div class="flex w-full gap-2 md:w-auto">
+                <button type="submit" class="flex-1 md:flex-none px-5 py-2.5 bg-gray-800 text-white text-sm font-bold rounded-xl hover:bg-gray-900 transition-all">
+                    Cari
+                </button>
+
+                @if(request('search') || request('class_id'))
+                    <a href="{{ route('student.index') }}" class="px-5 py-2.5 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition-colors text-sm font-bold" title="Reset Filter">
+                        Reset
+                    </a>
+                @endif
+            </div>
         </form>
 
         <div class="text-xs font-medium text-gray-400">

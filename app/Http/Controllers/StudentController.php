@@ -17,11 +17,23 @@ class StudentController extends Controller
         // Query dasar dengan relasi
         $query = Student::with('schoolClass');
 
+        // Filter berdasarkan Pencarian (Nama, NISN, atau NIK)
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('nisn', 'LIKE', "%{$search}%")
+                ->orWhere('nik', 'LIKE', "%{$search}%")
+                ->orWhere('rfid_uid', 'LIKE', "%{$search}%");
+            });
+        }
+
         // Filter jika ada input 'class_id'
         if ($request->has('class_id') && $request->class_id != '') {
             $query->where('school_class_id', $request->class_id);
         }
 
+        // Paginate dengan menyertakan query string agar filter tidak hilang saat pindah halaman
         $students = $query->latest()->paginate(10)->withQueryString();
 
         return view('students.index', compact('students', 'classes'));
