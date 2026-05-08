@@ -17,16 +17,25 @@ class AttendanceController extends Controller
         $classId = $request->get('school_class_id');
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+        $search = $request->get('search'); // Tambahkan variabel search
 
         $classes = \App\Models\SchoolClass::all();
         $query = Attendance::with(['student.schoolClass'])->latest('date');
+
+        // Filter Pencarian Nama atau NISN
+        if ($search) {
+            $query->whereHas('student', function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('nisn', 'LIKE', "%{$search}%");
+            });
+        }
 
         // Filter Kelas
         if ($classId) {
             $query->whereHas('student', fn($q) => $q->where('school_class_id', $classId));
         }
 
-        // Filter Berdasarkan Input Tanggal Manual
+        // Filter Berdasarkan Tanggal (Logika yang sudah ada)
         if ($startDate && $endDate) {
             $query->whereBetween('date', [$startDate, $endDate]);
         } else {
@@ -36,14 +45,17 @@ class AttendanceController extends Controller
                 case 'monthly': $query->whereMonth('date', $date->month)->whereYear('date', $date->year); break;
                 case 'quarterly': $query->whereBetween('date', [$date->startOfQuarter(), $date->endOfQuarter()]); break;
                 case 'yearly': $query->whereYear('date', $date->year); break;
-                default: $query->whereDate('date', Carbon::today()); break;
+                default:
+                    // Jika sedang search, biasanya user ingin melihat semua tanggal,
+                    // tapi jika tidak search, tampilkan hari ini.
+                    if (!$search) $query->whereDate('date', Carbon::today());
+                    break;
             }
         }
 
-        // Pagination: 10 data per halaman, tetap membawa parameter filter (queryString)
         $attendances = $query->paginate(10)->withQueryString();
 
-        return view('attendances.recap', compact('attendances', 'filter', 'classes', 'classId', 'startDate', 'endDate'));
+        return view('attendances.recap', compact('attendances', 'filter', 'classes', 'classId', 'startDate', 'endDate', 'search'));
     }
 
     public function destroy(Attendance $attendance)

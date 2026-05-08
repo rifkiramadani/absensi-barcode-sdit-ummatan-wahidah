@@ -26,6 +26,18 @@
             <form action="{{ route('attendance.recap') }}" method="GET"
                 class="grid grid-cols-1 gap-4 p-6 border border-gray-100 md:grid-cols-2 lg:flex lg:items-end rounded-2xl bg-gray-50">
 
+                {{-- Tambahan Input Search --}}
+                <div class="flex flex-col flex-1 gap-2 lg:min-w-[200px]">
+                    <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest ml-1">Cari Siswa</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+                            <i class="text-xs fa-solid fa-magnifying-glass"></i>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Nama / NISN..."
+                            class="w-full pl-9 text-sm border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-[#773DCE] transition-all">
+                    </div>
+                </div>
+
                 <div class="flex flex-col flex-1 gap-2">
                     <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest ml-1">Periode</label>
                     <select name="filter" class="w-full text-sm border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-[#773DCE] transition-all">
@@ -41,13 +53,14 @@
                     <select name="school_class_id" class="w-full text-sm border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-[#773DCE] transition-all">
                         <option value="">Semua Kelas</option>
                         @foreach ($classes as $class)
-                            <option value="{{ $class->id }}"
-                                {{ request('school_class_id') == $class->id ? 'selected' : '' }}>{{ $class->name }}
+                            <option value="{{ $class->id }}" {{ request('school_class_id') == $class->id ? 'selected' : '' }}>
+                                {{ $class->name }}
                             </option>
                         @endforeach
                     </select>
                 </div>
 
+                {{-- Input Tanggal --}}
                 <div class="flex flex-col flex-1 gap-2">
                     <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest ml-1">Mulai</label>
                     <input type="date" name="start_date" value="{{ request('start_date') }}"
@@ -65,6 +78,14 @@
                         class="flex-1 lg:flex-none px-6 py-2.5 text-sm font-bold text-white transition bg-[#773DCE] shadow-lg shadow-purple-100 rounded-xl hover:bg-[#5e2faf] active:scale-95">
                         <i class="mr-1 fa-solid fa-filter"></i> Filter
                     </button>
+
+                    {{-- Tombol Reset (Opsional tapi sangat berguna) --}}
+                    @if(request()->anyFilled(['search', 'school_class_id', 'start_date', 'end_date']))
+                        <a href="{{ route('attendance.recap') }}"
+                        class="p-2.5 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </a>
+                    @endif
 
                     <a href="{{ route('attendance.export', request()->all()) }}"
                         class="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold text-white transition bg-green-600 shadow-lg shadow-green-100 rounded-xl hover:bg-green-700 active:scale-95">
