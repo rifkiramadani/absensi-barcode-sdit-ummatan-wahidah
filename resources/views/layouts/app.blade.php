@@ -49,48 +49,82 @@
 
     <div class="main-wrapper">
 
-        <aside class="w-[280px] h-full flex flex-col shrink-0 p-6 border-r border-slate-100 bg-white overflow-y-auto z-40">
-            <div class="flex flex-col w-full gap-9">
-                <div class="flex flex-col items-center gap-4 px-2 py-6 bg-gradient-to-b from-slate-50 to-white border border-slate-100 rounded-[2rem]">
+        <aside class="w-[260px] h-full flex flex-col shrink-0 border-r border-slate-100 bg-white z-40">
+
+            {{-- Logo --}}
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100">
+                <div class="flex flex-col items-center gap-3 px-2 py-4 bg-gradient-to-b from-slate-50 to-white border border-slate-100 rounded-[1.5rem]">
                     <div class="flex items-center justify-center gap-3">
-                        <img src="{{ asset('assets/logosdit/sdit_ummatan_wahidah_logo.png') }}" class="w-auto h-12">
-                        <div class="w-px h-8 bg-slate-200"></div>
-                        <img src="{{ asset('assets/logosdit/yayasan_assalam_logo.png') }}" class="w-auto h-12">
+                        <img src="{{ asset('assets/logosdit/sdit_ummatan_wahidah_logo.png') }}" class="w-auto h-10">
+                        <div class="w-px h-7 bg-slate-200"></div>
+                        <img src="{{ asset('assets/logosdit/yayasan_assalam_logo.png') }}" class="w-auto h-10">
                     </div>
-                    <div class="text-center">
-                        <p class="text-[10px] font-extrabold text-[#773DCE] uppercase tracking-[0.2em]">Sistem Absensi</p>
-                    </div>
+                    <p class="text-[9px] font-extrabold text-[#773DCE] uppercase tracking-[0.2em]">Sistem Absensi</p>
                 </div>
+            </div>
 
-                <ul class="flex flex-col gap-2">
-                    @php
-                        $menus = [
-                            ['route' => 'dashboard', 'icon' => 'fa-gauge-high', 'label' => 'Dashboard'],
-                            ['route' => 'student.index', 'icon' => 'fa-users-rectangle', 'label' => 'Data Siswa'],
-                            ['route' => 'school_class.index', 'icon' => 'fa-school-flag', 'label' => 'Data Kelas'],
-                            ['route' => 'teacher.index',          'icon' => 'fa-chalkboard-user',   'label' => 'Data Guru'],
-                            ['route' => 'setting.index', 'icon' => 'fa-clock-rotate-left', 'label' => 'Jam Masuk'],
-                            ['route' => 'scan.index', 'icon' => 'fa-qrcode', 'label' => 'Scan Absensi'],
-                            ['route' => 'attendance.recap', 'icon' => 'fa-file-invoice', 'label' => 'Rekap Absensi'],
-                            ['route' => 'teacher_attendance.recap','icon' => 'fa-file-invoice',     'label' => 'Rekap Guru'],
+            {{-- Menu --}}
+            <nav class="flex flex-col flex-1 gap-1 px-4 py-3 overflow-hidden">
+
+                @php
+                $groups = [
+                    [
+                        'label' => 'Utama',
+                        'menus' => [
+                            ['route' => 'dashboard',    'icon' => 'fa-gauge-high',    'label' => 'Dashboard'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Master Data',
+                        'menus' => [
+                            ['route' => 'student.index',      'icon' => 'fa-users-rectangle',  'label' => 'Data Siswa'],
+                            ['route' => 'school_class.index',  'icon' => 'fa-school-flag',      'label' => 'Data Kelas'],
+                            ['route' => 'teacher.index',       'icon' => 'fa-chalkboard-user',  'label' => 'Data Guru'],
+                            ['route' => 'setting.index',       'icon' => 'fa-clock-rotate-left','label' => 'Jam Masuk'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Absensi',
+                        'menus' => [
+                            ['route' => 'scan.index',               'icon' => 'fa-qrcode',       'label' => 'Scan Absensi'],
+                            ['route' => 'attendance.recap',         'icon' => 'fa-file-invoice', 'label' => 'Rekap Siswa'],
+                            ['route' => 'teacher_attendance.recap', 'icon' => 'fa-file-invoice', 'label' => 'Rekap Guru'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Catatan',
+                        'menus' => [
                             ['route' => 'student_case.index', 'icon' => 'fa-book-open', 'label' => 'Buku Catatan'],
-                        ];
-                    @endphp
+                        ]
+                    ],
+                ];
+                @endphp
 
-                    @foreach($menus as $menu)
-                    <li>
+                @foreach($groups as $group)
+                    <div class="mb-1">
+                        <p class="text-[9px] font-black text-slate-300 uppercase tracking-[0.18em] px-3 mb-1">
+                            {{ $group['label'] }}
+                        </p>
+                        @foreach($group['menus'] as $menu)
                         <a href="{{ route($menu['route']) }}"
-                            class="flex items-center gap-4 p-3.5 rounded-2xl transition-all duration-200
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 mb-0.5
                             {{ request()->routeIs($menu['route'])
-                                ? 'bg-[#773DCE] text-white shadow-lg'
+                                ? 'bg-[#773DCE] text-white shadow-md shadow-purple-200'
                                 : 'text-slate-500 hover:bg-purple-50 hover:text-[#773DCE]' }}">
-                            <i class="fa-solid {{ $menu['icon'] }} text-lg"></i>
+                            <i class="fa-solid {{ $menu['icon'] }} text-base w-4 text-center"></i>
                             <span class="text-sm font-semibold">{{ $menu['label'] }}</span>
                         </a>
-                    </li>
-                    @endforeach
-                </ul>
+                        @endforeach
+                    </div>
+                @endforeach
+
+            </nav>
+
+            {{-- Footer sidebar --}}
+            <div class="px-5 py-4 border-t border-slate-100">
+                <p class="text-[9px] text-center text-slate-300 font-medium">SDIT Ummatan Wahidah © {{ date('Y') }}</p>
             </div>
+
         </aside>
 
         <div class="flex flex-col flex-1 h-full min-w-0 overflow-hidden">
