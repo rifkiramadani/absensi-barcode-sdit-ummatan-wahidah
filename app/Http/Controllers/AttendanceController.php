@@ -14,12 +14,13 @@ class AttendanceController extends Controller
 {
   public function recap(Request $request)
     {
-        $filter    = $request->get('filter', 'daily');
-        $classId   = $request->get('school_class_id');
-        $startDate = $request->get('start_date');
-        $endDate   = $request->get('end_date');
-        $search    = $request->get('search');
-        $classes   = SchoolClass::all();
+        $filter      = $request->get('filter', 'daily');
+        $classId     = $request->get('school_class_id');
+        $startDate   = $request->get('start_date');
+        $endDate     = $request->get('end_date');
+        $search      = $request->get('search');
+        $keterangan  = $request->get('keterangan'); // TAMBAH INI
+        $classes     = SchoolClass::all();
 
         $query = Attendance::with(['student.schoolClass'])->latest('date');
 
@@ -32,6 +33,19 @@ class AttendanceController extends Controller
 
         if ($classId) {
             $query->whereHas('student', fn($q) => $q->where('school_class_id', $classId));
+        }
+
+        // TAMBAH INI — filter keterangan
+        if ($keterangan) {
+            if ($keterangan === 'Tidak Hadir') {
+                // Tampilkan semua yang punya keterangan (Izin/Sakit/Alpa)
+                $query->whereNotNull('keterangan');
+            } elseif ($keterangan === 'Hadir') {
+                // Tampilkan yang hadir/telat tanpa keterangan
+                $query->whereIn('status', ['Hadir', 'Telat'])->whereNull('keterangan');
+            } else {
+                $query->where('keterangan', $keterangan);
+            }
         }
 
         if ($startDate && $endDate) {
@@ -52,14 +66,13 @@ class AttendanceController extends Controller
                     $query->whereYear('date', $date->year);
                     break;
                 default:
-                    if (!$search) $query->whereDate('date', Carbon::today());
+                    if (!$search && !$keterangan) $query->whereDate('date', Carbon::today());
                     break;
             }
         }
 
         $attendances = $query->paginate(10)->withQueryString();
 
-        // TAMBAH INI — kirim data siswa ke view
         $studentList = Student::with('schoolClass')
                         ->orderBy('name')
                         ->get()
@@ -73,7 +86,7 @@ class AttendanceController extends Controller
 
         return view('attendances.recap', compact(
             'attendances', 'filter', 'classes', 'classId',
-            'startDate', 'endDate', 'search', 'studentList'
+            'startDate', 'endDate', 'search', 'studentList', 'keterangan'
         ));
     }
 

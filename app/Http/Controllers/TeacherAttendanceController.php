@@ -14,10 +14,11 @@ class TeacherAttendanceController extends Controller
 {
     public function recap(Request $request)
     {
-        $filter    = $request->get('filter', 'daily');
-        $search    = $request->get('search');
-        $startDate = $request->get('start_date');
-        $endDate   = $request->get('end_date');
+        $filter     = $request->get('filter', 'daily');
+        $search     = $request->get('search');
+        $startDate  = $request->get('start_date');
+        $endDate    = $request->get('end_date');
+        $keterangan = $request->get('keterangan'); // TAMBAH INI
 
         $query = TeacherAttendance::with('teacher')->latest('date');
 
@@ -26,6 +27,17 @@ class TeacherAttendanceController extends Controller
                 $q->where('name', 'LIKE', "%{$search}%")
                 ->orWhere('nip', 'LIKE', "%{$search}%");
             });
+        }
+
+        // TAMBAH INI — filter keterangan
+        if ($keterangan) {
+            if ($keterangan === 'Tidak Hadir') {
+                $query->whereNotNull('keterangan');
+            } elseif ($keterangan === 'Hadir') {
+                $query->whereIn('status', ['Hadir', 'Telat'])->whereNull('keterangan');
+            } else {
+                $query->where('keterangan', $keterangan);
+            }
         }
 
         if ($startDate && $endDate) {
@@ -46,15 +58,14 @@ class TeacherAttendanceController extends Controller
                     $query->whereYear('date', $date->year);
                     break;
                 default:
-                    if (!$search) $query->whereDate('date', Carbon::today());
+                    if (!$search && !$keterangan) $query->whereDate('date', Carbon::today());
                     break;
             }
         }
 
         $attendances = $query->paginate(10)->withQueryString();
 
-        // TAMBAH INI — kirim data guru ke view agar tidak perlu query di dalam @json blade
-        $guruList = \App\Models\Teacher::where('is_active', true)
+        $guruList = Teacher::where('is_active', true)
                     ->orderBy('name')
                     ->get()
                     ->map(fn($g) => [
@@ -65,7 +76,7 @@ class TeacherAttendanceController extends Controller
                     ->values();
 
         return view('teacher_attendances.recap', compact(
-            'attendances', 'filter', 'search', 'startDate', 'endDate', 'guruList'
+            'attendances', 'filter', 'search', 'startDate', 'endDate', 'guruList', 'keterangan'
         ));
     }
 
