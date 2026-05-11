@@ -73,7 +73,7 @@
                             ['route' => 'scan.index', 'icon' => 'fa-qrcode', 'label' => 'Scan Absensi'],
                             ['route' => 'attendance.recap', 'icon' => 'fa-file-invoice', 'label' => 'Rekap Absensi'],
                             ['route' => 'teacher_attendance.recap','icon' => 'fa-file-invoice',     'label' => 'Rekap Guru'],
-                            ['route' => 'student_case.index',     'icon' => 'fa-triangle-exclamation', 'label' => 'Buku Kasus'],
+                            ['route' => 'student_case.index', 'icon' => 'fa-book-open', 'label' => 'Buku Catatan'],
                         ];
                     @endphp
 

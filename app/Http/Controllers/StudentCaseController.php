@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 
 class StudentCaseController extends Controller
 {
+    // Daftar kategori terpusat — mudah diubah di satu tempat
+    const KATEGORI = [
+        'Pelanggaran'           => ['warna' => 'red',    'icon' => 'fa-triangle-exclamation'],
+        'Prestasi Akademik'     => ['warna' => 'green',  'icon' => 'fa-award'],
+        'Prestasi Non-Akademik' => ['warna' => 'blue',   'icon' => 'fa-trophy'],
+        'Perilaku Baik'         => ['warna' => 'purple', 'icon' => 'fa-heart'],
+        'Catatan Umum'          => ['warna' => 'gray',   'icon' => 'fa-note-sticky'],
+    ];
+
     public function index(Request $request)
     {
         $search   = $request->get('search');
@@ -32,15 +41,28 @@ class StudentCaseController extends Controller
             $query->whereHas('student', fn($q) => $q->where('school_class_id', $classId));
         }
 
-        $cases = $query->paginate(10)->withQueryString();
+        $cases    = $query->paginate(10)->withQueryString();
+        $kategoriList = self::KATEGORI;
 
-        return view('student_cases.index', compact('cases', 'search', 'kategori', 'classes', 'classId'));
+        return view('student_cases.index', compact(
+            'cases', 'search', 'kategori', 'classes', 'classId', 'kategoriList'
+        ));
     }
 
     public function create()
     {
         $students = Student::with('schoolClass')->orderBy('name')->get();
-        return view('student_cases.create', compact('students'));
+
+        $studentList = $students->map(fn($s) => [
+            'id'    => $s->id,
+            'name'  => $s->name,
+            'nisn'  => $s->nisn,
+            'class' => $s->schoolClass->name,
+        ])->values();
+
+        $kategoriList = self::KATEGORI;
+
+        return view('student_cases.create', compact('students', 'studentList', 'kategoriList'));
     }
 
     public function store(Request $request)
@@ -48,7 +70,7 @@ class StudentCaseController extends Controller
         $request->validate([
             'student_id'       => 'required|exists:students,id',
             'tanggal_kejadian' => 'required|date',
-            'kategori'         => 'required|in:Pelanggaran,Prestasi,Lainnya',
+            'kategori'         => 'required|in:' . implode(',', array_keys(self::KATEGORI)),
             'judul'            => 'required|string|max:255',
             'deskripsi'        => 'required|string',
             'tindak_lanjut'    => 'nullable|string',
@@ -60,13 +82,23 @@ class StudentCaseController extends Controller
         ]);
 
         return redirect()->route('student_case.index')
-            ->with('success', 'Catatan kasus berhasil ditambahkan!');
+            ->with('success', 'Catatan berhasil ditambahkan!');
     }
 
     public function edit(StudentCase $studentCase)
     {
         $students = Student::with('schoolClass')->orderBy('name')->get();
-        return view('student_cases.edit', compact('studentCase', 'students'));
+
+        $studentList = $students->map(fn($s) => [
+            'id'    => $s->id,
+            'name'  => $s->name,
+            'nisn'  => $s->nisn,
+            'class' => $s->schoolClass->name,
+        ])->values();
+
+        $kategoriList = self::KATEGORI;
+
+        return view('student_cases.edit', compact('studentCase', 'students', 'studentList', 'kategoriList'));
     }
 
     public function update(Request $request, StudentCase $studentCase)
@@ -74,7 +106,7 @@ class StudentCaseController extends Controller
         $request->validate([
             'student_id'       => 'required|exists:students,id',
             'tanggal_kejadian' => 'required|date',
-            'kategori'         => 'required|in:Pelanggaran,Prestasi,Lainnya',
+            'kategori'         => 'required|in:' . implode(',', array_keys(self::KATEGORI)),
             'judul'            => 'required|string|max:255',
             'deskripsi'        => 'required|string',
             'tindak_lanjut'    => 'nullable|string',
@@ -83,12 +115,12 @@ class StudentCaseController extends Controller
         $studentCase->update($request->all());
 
         return redirect()->route('student_case.index')
-            ->with('success', 'Catatan kasus berhasil diperbarui!');
+            ->with('success', 'Catatan berhasil diperbarui!');
     }
 
     public function destroy(StudentCase $studentCase)
     {
         $studentCase->delete();
-        return back()->with('success', 'Catatan kasus berhasil dihapus.');
+        return back()->with('success', 'Catatan berhasil dihapus.');
     }
 }

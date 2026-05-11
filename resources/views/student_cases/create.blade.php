@@ -6,11 +6,12 @@
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl p-8 mx-auto bg-white border border-gray-100 shadow-sm rounded-2xl">
 
+            {{-- Header --}}
             <div class="flex items-center gap-3 pb-4 mb-6 border-b border-gray-50">
-                <div class="p-2 text-red-500 rounded-lg bg-red-50">
-                    <i class="text-xl fa-solid fa-triangle-exclamation"></i>
+                <div class="p-2 bg-purple-50 rounded-lg text-[#773DCE]">
+                    <i class="text-xl fa-solid fa-book-open"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800">Tambah Catatan Kasus</h2>
+                <h2 class="text-2xl font-bold text-gray-800">Tambah Catatan Baru</h2>
             </div>
 
             <form action="{{ route('student_case.store') }}" method="POST">
@@ -65,34 +66,61 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700">Tanggal Kejadian</label>
-                            <input type="date" name="tanggal_kejadian"
-                                value="{{ old('tanggal_kejadian', date('Y-m-d')) }}"
-                                class="block w-full mt-1 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm"
-                                required>
-                            @error('tanggal_kejadian')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                            @enderror
+                   {{-- Tanggal sendiri, tidak di-grid dengan kategori --}}
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700">Tanggal Kejadian</label>
+                        <input type="date" name="tanggal_kejadian"
+                            value="{{ old('tanggal_kejadian', date('Y-m-d')) }}"
+                            class="block w-full mt-1 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm"
+                            required>
+                        @error('tanggal_kejadian')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Kategori sendiri, full width, pakai Alpine --}}
+                    <div x-data="{ selected: '{{ old('kategori', 'Catatan Umum') }}' }">
+                        <label class="block mb-3 text-sm font-bold text-gray-700">Kategori</label>
+
+                        {{-- Hidden input yang dikirim ke server --}}
+                        <input type="hidden" name="kategori" :value="selected">
+
+                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+
+                            @php
+                            $kategoriConfig = [
+                                'Pelanggaran'           => ['warna' => '#EF4444', 'bg' => '#FEF2F2', 'border' => '#FCA5A5', 'icon' => 'fa-triangle-exclamation'],
+                                'Prestasi Akademik'     => ['warna' => '#16A34A', 'bg' => '#F0FDF4', 'border' => '#86EFAC', 'icon' => 'fa-award'],
+                                'Prestasi Non-Akademik' => ['warna' => '#2563EB', 'bg' => '#EFF6FF', 'border' => '#93C5FD', 'icon' => 'fa-trophy'],
+                                'Perilaku Baik'         => ['warna' => '#9333EA', 'bg' => '#FAF5FF', 'border' => '#D8B4FE', 'icon' => 'fa-heart'],
+                                'Catatan Umum'          => ['warna' => '#6B7280', 'bg' => '#F9FAFB', 'border' => '#D1D5DB', 'icon' => 'fa-note-sticky'],
+                            ];
+                            @endphp
+
+                            @foreach($kategoriConfig as $nama => $cfg)
+                            <div @click="selected = '{{ $nama }}'"
+                                :style="selected === '{{ $nama }}'
+                                    ? 'border-color: {{ $cfg['border'] }}; background-color: {{ $cfg['bg'] }};'
+                                    : 'border-color: #F3F4F6; background-color: white;'"
+                                class="flex flex-col items-center gap-2 p-4 transition-all border-2 cursor-pointer select-none rounded-2xl hover:shadow-sm">
+                                <i class="fa-solid {{ $cfg['icon'] }} text-2xl"
+                                    style="color: {{ $cfg['warna'] }}"></i>
+                                <span class="text-[11px] font-bold text-center text-gray-700 leading-tight">{{ $nama }}</span>
+                                <div class="w-2 h-2 transition-all rounded-full"
+                                    :style="selected === '{{ $nama }}'
+                                        ? 'background-color: {{ $cfg['warna'] }}'
+                                        : 'background-color: #E5E7EB'">
+                                </div>
+                            </div>
+                            @endforeach
+
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700">Kategori</label>
-                            <select name="kategori"
-                                class="block w-full mt-1 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm">
-                                <option value="Pelanggaran" {{ old('kategori') == 'Pelanggaran' ? 'selected' : '' }}>
-                                    Pelanggaran</option>
-                                <option value="Prestasi" {{ old('kategori') == 'Prestasi' ? 'selected' : '' }}>Prestasi
-                                </option>
-                                <option value="Lainnya" {{ old('kategori') == 'Lainnya' ? 'selected' : '' }}>Lainnya
-                                </option>
-                            </select>
-                        </div>
+                        @error('kategori') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700">Judul Kasus</label>
+                        <label class="block text-sm font-bold text-gray-700">Judul Catatan</label>
                         <input type="text" name="judul" value="{{ old('judul') }}"
                             class="block w-full mt-1 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm"
                             placeholder="Contoh: Perkelahian di halaman sekolah" required>
@@ -105,7 +133,7 @@
                         <label class="block text-sm font-bold text-gray-700">Deskripsi Lengkap</label>
                         <textarea name="deskripsi" rows="4"
                             class="block w-full mt-1 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm"
-                            placeholder="Jelaskan kronologi kejadian secara lengkap..." required>{{ old('deskripsi') }}</textarea>
+                            placeholder="Jelaskan detail kejadian atau pencapaian secara lengkap..." required>{{ old('deskripsi') }}</textarea>
                         @error('deskripsi')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
@@ -116,7 +144,7 @@
                                 class="font-normal text-gray-400">(opsional)</span></label>
                         <textarea name="tindak_lanjut" rows="3"
                             class="block w-full mt-1 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm"
-                            placeholder="Contoh: Siswa dipanggil orang tua, diberi surat peringatan...">{{ old('tindak_lanjut') }}</textarea>
+                            placeholder="Contoh: Siswa dipanggil orang tua, diberikan penghargaan, dll...">{{ old('tindak_lanjut') }}</textarea>
                     </div>
 
                 </div>
@@ -133,51 +161,45 @@
         </div>
     </div>
     <script>
-        function studentSearch() {
-            const allStudents = @json(
-                $students->map(fn($s) => [
-                        'id' => $s->id,
-                        'name' => $s->name,
-                        'nisn' => $s->nisn,
-                        'class' => $s->schoolClass->name,
-                    ]));
+const allStudentData = {!! json_encode($studentList) !!};
 
-            return {
-                search: '',
-                selectedId: '{{ old('student_id') }}',
-                selectedName: '',
-                open: false,
-                results: [],
+function studentSearch() {
+    return {
+        search: '',
+        selectedId: '{{ old("student_id") }}',
+        selectedName: '',
+        open: false,
+        results: [],
 
-                filter() {
-                    if (this.search.length < 1) {
-                        this.results = [];
-                        this.open = false;
-                        return;
-                    }
-                    const q = this.search.toLowerCase();
-                    this.results = allStudents.filter(s =>
-                        s.name.toLowerCase().includes(q) ||
-                        s.nisn.toLowerCase().includes(q) ||
-                        s.class.toLowerCase().includes(q)
-                    ).slice(0, 10);
-                    this.open = true;
-                },
-
-                select(s) {
-                    this.selectedId = s.id;
-                    this.selectedName = s.name + ' - ' + s.class;
-                    this.search = '';
-                    this.open = false;
-                    this.results = [];
-                },
-
-                clear() {
-                    this.selectedId = '';
-                    this.selectedName = '';
-                    this.search = '';
-                }
+        filter() {
+            if (this.search.length < 1) {
+                this.results = [];
+                this.open = false;
+                return;
             }
+            const q = this.search.toLowerCase();
+            this.results = allStudentData.filter(s =>
+                s.name.toLowerCase().includes(q) ||
+                s.nisn.toLowerCase().includes(q) ||
+                s.class.toLowerCase().includes(q)
+            ).slice(0, 10);
+            this.open = true;
+        },
+
+        select(s) {
+            this.selectedId   = s.id;
+            this.selectedName = s.name + ' - ' + s.class;
+            this.search       = '';
+            this.open         = false;
+            this.results      = [];
+        },
+
+        clear() {
+            this.selectedId   = '';
+            this.selectedName = '';
+            this.search       = '';
         }
-    </script>
+    }
+}
+</script>
 @endsection
