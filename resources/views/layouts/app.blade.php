@@ -68,9 +68,12 @@
                             ['route' => 'dashboard', 'icon' => 'fa-gauge-high', 'label' => 'Dashboard'],
                             ['route' => 'student.index', 'icon' => 'fa-users-rectangle', 'label' => 'Data Siswa'],
                             ['route' => 'school_class.index', 'icon' => 'fa-school-flag', 'label' => 'Data Kelas'],
+                            ['route' => 'teacher.index',          'icon' => 'fa-chalkboard-user',   'label' => 'Data Guru'],
                             ['route' => 'setting.index', 'icon' => 'fa-clock-rotate-left', 'label' => 'Jam Masuk'],
                             ['route' => 'scan.index', 'icon' => 'fa-qrcode', 'label' => 'Scan Absensi'],
                             ['route' => 'attendance.recap', 'icon' => 'fa-file-invoice', 'label' => 'Rekap Absensi'],
+                            ['route' => 'teacher_attendance.recap','icon' => 'fa-file-invoice',     'label' => 'Rekap Guru'],
+                            ['route' => 'student_case.index',     'icon' => 'fa-triangle-exclamation', 'label' => 'Buku Kasus'],
                         ];
                     @endphp
 

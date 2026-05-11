@@ -14,6 +14,8 @@ class Attendance extends Model
         'check_in',  // Tambahkan ini
         'check_out', // Tambahkan ini
         'status',
+        'keterangan',        // BARU
+        'catatan_keterangan', // BARU
     ];
 
     public function student() {

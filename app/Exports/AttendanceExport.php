@@ -55,6 +55,15 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
 
     public function map($attendance): array
     {
+        // Tentukan tampilan status: prioritaskan keterangan jika ada
+        if ($attendance->keterangan) {
+            $statusTampil = $attendance->keterangan; // Izin / Sakit / Alpa
+        } elseif ($attendance->status) {
+            $statusTampil = $attendance->status;     // Hadir / Telat
+        } else {
+            $statusTampil = '-';
+        }
+
         return [
             $attendance->student->nisn,
             $attendance->student->nik,
@@ -62,16 +71,18 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
             $attendance->student->schoolClass->name,
             $attendance->student->gender == 'L' ? 'Laki-laki' : 'Perempuan',
             $attendance->date,
-            $attendance->check_in ?? '-',
+            $attendance->check_in  ?? '-',
             $attendance->check_out ?? '-',
-            $attendance->status,
+            $statusTampil,                           // gabungan status + keterangan
+            $attendance->catatan_keterangan ?? '-',  // kolom catatan tambahan
         ];
     }
 
     public function headings(): array
     {
         return [
-            'NISN', 'NIK', 'Nama Siswa', 'Kelas', 'Jenis Kelamin', 'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status',
+            'NISN', 'NIK', 'Nama Siswa', 'Kelas', 'Jenis Kelamin',
+            'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status/Keterangan', 'Catatan',
         ];
     }
 
