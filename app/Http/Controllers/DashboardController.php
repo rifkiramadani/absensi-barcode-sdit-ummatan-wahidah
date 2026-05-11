@@ -6,36 +6,52 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\TeacherAttendance;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-   public function index(Request $request)
+    public function index(Request $request)
     {
-        // Tetap hitung total keseluruhan untuk Card di atas
-        $totalSiswa = Student::count();
-        $totalKelas = SchoolClass::count();
-
-        // Ambil tanggal dari filter, default hari ini
         $tanggalSelected = $request->get('tanggal', date('Y-m-d'));
 
-        // Query data absensi berdasarkan tanggal terpilih
-        $absensiData = Attendance::whereDate('date', $tanggalSelected)->get();
+        // ===== DATA SISWA =====
+        $totalSiswa  = Student::count();
+        $totalKelas  = SchoolClass::count();
 
-        // Total rekap dihitung berdasarkan hasil filter tanggal
-        $totalAbsensi = $absensiData->count();
+        $absensiSiswa = Attendance::whereDate('date', $tanggalSelected)->get();
+        $totalAbsensiSiswa = $absensiSiswa->count();
 
-        $chartData = [
-            // Logika: Jika status Hadir & belum check_out
-            'hadir'   => $absensiData->where('status', 'Hadir')->whereNull('check_out')->count(),
-            // Logika: Jika status Telat & belum check_out
-            'telat'   => $absensiData->where('status', 'Telat')->whereNull('check_out')->count(),
-            // Logika: Jika sudah ada jam check_out (apapun status awalnya)
-            'pulang'  => $absensiData->whereNotNull('check_out')->count(),
-            // Logika: Status khusus Selesai
-            'selesai' => $absensiData->where('status', 'Selesai')->count(),
+        $chartSiswa = [
+            'hadir'  => $absensiSiswa->where('status', 'Hadir')->whereNull('check_out')->count(),
+            'telat'  => $absensiSiswa->where('status', 'Telat')->whereNull('check_out')->count(),
+            'pulang' => $absensiSiswa->whereNotNull('check_out')->count(),
+            'izin'   => $absensiSiswa->where('keterangan', 'Izin')->count(),
+            'sakit'  => $absensiSiswa->where('keterangan', 'Sakit')->count(),
+            'alpa'   => $absensiSiswa->where('keterangan', 'Alpa')->count(),
         ];
 
-        return view('dashboard', compact('totalSiswa', 'totalKelas', 'totalAbsensi', 'chartData', 'tanggalSelected'));
+        // ===== DATA GURU =====
+        $totalGuru = Teacher::where('is_active', true)->count();
+
+        $absensiGuru = TeacherAttendance::whereDate('date', $tanggalSelected)->get();
+        $totalAbsensiGuru = $absensiGuru->count();
+
+        $chartGuru = [
+            'hadir'  => $absensiGuru->where('status', 'Hadir')->whereNull('check_out')->count(),
+            'telat'  => $absensiGuru->where('status', 'Telat')->whereNull('check_out')->count(),
+            'pulang' => $absensiGuru->whereNotNull('check_out')->count(),
+            'izin'   => $absensiGuru->where('keterangan', 'Izin')->count(),
+            'sakit'  => $absensiGuru->where('keterangan', 'Sakit')->count(),
+            'alpa'   => $absensiGuru->where('keterangan', 'Alpa')->count(),
+        ];
+
+        return view('dashboard', compact(
+            'totalSiswa', 'totalKelas', 'totalGuru',
+            'totalAbsensiSiswa', 'totalAbsensiGuru',
+            'chartSiswa', 'chartGuru',
+            'tanggalSelected'
+        ));
     }
 }
