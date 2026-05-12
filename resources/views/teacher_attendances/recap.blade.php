@@ -218,7 +218,7 @@
 
 {{-- MODAL INPUT / EDIT KETERANGAN GURU --}}
 <div x-show="show" x-cloak
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+    class="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm"
     @click.self="show = false">
     <div class="w-full max-w-md p-8 mx-4 bg-white shadow-2xl rounded-3xl">
 
