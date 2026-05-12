@@ -83,13 +83,49 @@
                         @enderror
                     </div>
 
-                    <div class="col-span-2">
-                        <label class="block text-sm font-bold text-gray-700">Foto Guru</label>
-                        <input type="file" name="photo" accept="image/*"
-                            class="block w-full mt-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#773DCE] hover:file:bg-purple-100">
-                        @error('photo')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
+                   <div class="col-span-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-sm font-bold text-gray-700">Foto Guru</label>
+                            @error('photo')
+                                <span class="text-xs font-bold text-red-500 animate-pulse">
+                                    <i class="mr-1 fa-solid fa-circle-exclamation"></i> {{ $message }}
+                                </span>
+                            @enderror
+                        </div>
+
+                        <div class="relative flex flex-col items-center justify-center px-6 pt-5 pb-6 mt-2 transition-all border-2 rounded-2xl group @error('photo') border-red-200 bg-red-50/30 @else border-gray-100 border-dashed hover:bg-gray-50 @enderror">
+
+                            {{-- Preview Box --}}
+                            <div id="previewContainer" class="relative hidden mb-4">
+                                <div class="relative inline-block group/img">
+                                    <img id="photoPreview" src="#"
+                                        class="object-cover w-32 h-32 border-4 border-white shadow-md rounded-2xl ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                        onclick="bukaPreviewFoto(this.src, 'Preview Foto Guru')"
+                                        title="Klik untuk preview">
+                                    <div class="absolute inset-0 flex items-center justify-center transition-opacity opacity-0 pointer-events-none rounded-2xl bg-black/20 group-hover/img:opacity-100">
+                                        <i class="text-lg text-white fa-solid fa-magnifying-glass-plus"></i>
+                                    </div>
+                                </div>
+                                <button type="button" id="removePhoto"
+                                    class="absolute flex items-center justify-center w-6 h-6 text-white transition-colors bg-red-500 rounded-full shadow-sm -top-2 -right-2 hover:bg-red-600">
+                                    <i class="text-xs fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+
+                            {{-- Icon & Text --}}
+                            <div id="uploadPlaceholder" class="space-y-1 text-center">
+                                <i class="mb-2 text-3xl transition-colors fa-solid fa-image @error('photo') text-red-300 @else text-gray-300 group-hover:text-purple-300 @enderror"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="photo"
+                                        class="relative cursor-pointer bg-transparent rounded-md font-bold text-[#773DCE] hover:text-[#5e2faf]">
+                                        <span>Upload file foto</span>
+                                        <input id="photo" name="photo" type="file" class="sr-only" accept="image/*">
+                                    </label>
+                                    <p class="pl-1">atau drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-400">PNG, JPG up to 2MB</p>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -105,4 +141,32 @@
             </form>
         </div>
     </div>
+   <script>
+    const photoInput       = document.getElementById('photo');
+    const photoPreview     = document.getElementById('photoPreview');
+    const previewContainer = document.getElementById('previewContainer');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const removeBtn        = document.getElementById('removePhoto');
+
+    photoInput.onchange = evt => {
+        const [file] = photoInput.files;
+        if (file) {
+            if (file.type.startsWith('image/')) {
+                photoPreview.src = URL.createObjectURL(file);
+                previewContainer.classList.remove('hidden');
+                uploadPlaceholder.classList.add('opacity-40');
+            } else {
+                alert('Mohon unggah file gambar yang valid (JPG/PNG).');
+                photoInput.value = '';
+            }
+        }
+    };
+
+    removeBtn.onclick = () => {
+        photoInput.value = '';
+        previewContainer.classList.add('hidden');
+        uploadPlaceholder.classList.remove('opacity-40');
+        photoPreview.src = '#';
+    };
+    </script>
 @endsection

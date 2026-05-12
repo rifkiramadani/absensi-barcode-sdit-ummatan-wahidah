@@ -75,14 +75,27 @@
 
                 <div class="col-span-2">
                     <div class="flex items-center gap-6 p-6 border border-gray-100 rounded-2xl bg-gray-50">
-                        <img id="photoPreview"
-                            src="{{ $teacher->photo ? asset('storage/'.$teacher->photo) : asset('assets/images/photos/default-photo.svg') }}"
-                            class="object-cover w-24 h-24 border-4 border-white shadow-md rounded-2xl ring-1 ring-gray-100">
+
+                        {{-- Foto Preview --}}
+                        <div class="relative flex-shrink-0 group">
+                            <img id="photoPreview"
+                                src="{{ $teacher->photo ? asset('storage/'.$teacher->photo) : asset('assets/images/photos/default-photo.svg') }}"
+                                class="object-cover w-24 h-24 border-4 border-white shadow-md rounded-2xl ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                onclick="bukaPreviewFoto(this.src, '{{ addslashes($teacher->name) }}')"
+                                title="Klik untuk preview">
+                            <div class="absolute inset-0 flex items-center justify-center transition-opacity opacity-0 pointer-events-none rounded-2xl bg-black/20 group-hover:opacity-100">
+                                <i class="text-lg text-white fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                        </div>
+
                         <div class="flex-1">
                             <p class="mb-2 text-xs italic text-gray-400">*Kosongkan jika foto tidak ingin diganti</p>
                             <input type="file" name="photo" id="photoInput" accept="image/*"
                                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#773DCE] hover:file:bg-purple-100">
-                            @error('photo') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            <p class="mt-2 text-[10px] text-gray-400">Format: PNG, JPG, JPEG (Maks. 2MB)</p>
+                            @error('photo')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
