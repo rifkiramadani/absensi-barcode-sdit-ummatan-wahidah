@@ -179,6 +179,41 @@
             </main>
         </div>
     </div>
+{{-- MODAL PREVIEW FOTO GLOBAL --}}
+<div id="photoModal" onclick="tutupPreviewFoto()"
+    class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/70 backdrop-blur-sm cursor-zoom-out">
+    <div class="relative w-full max-w-lg mx-4" onclick="event.stopPropagation()">
+        <img id="photoModalImg" src="" alt="Preview Foto"
+            class="w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl border-4 border-white">
+        <button onclick="tutupPreviewFoto()"
+            class="absolute flex items-center justify-center w-8 h-8 text-gray-600 transition-all bg-white rounded-full shadow-lg -top-3 -right-3 hover:text-red-500">
+            <i class="text-sm fa-solid fa-xmark"></i>
+        </button>
+        <p id="photoModalName" class="mt-3 text-sm font-bold text-center text-white drop-shadow"></p>
+    </div>
+</div>
 
+<script>
+    function bukaPreviewFoto(src, nama) {
+        const modal = document.getElementById('photoModal');
+        document.getElementById('photoModalImg').src = src;
+        document.getElementById('photoModalName').textContent = nama || '';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function tutupPreviewFoto() {
+        const modal = document.getElementById('photoModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+
+    // Tutup dengan ESC
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') tutupPreviewFoto();
+    });
+</script>
 </body>
 </html>

@@ -102,8 +102,12 @@
 
                         {{-- Preview Box --}}
                         <div id="previewContainer" class="relative hidden mb-4">
-                            <img id="photoPreview" src="#" class="object-cover w-32 h-32 border-4 border-white shadow-md rounded-2xl ring-1 ring-gray-100">
-                            <button type="button" id="removePhoto" class="absolute flex items-center justify-center w-6 h-6 text-white transition-colors bg-red-500 rounded-full shadow-sm -top-2 -right-2 hover:bg-red-600">
+                            <img id="photoPreview" src="#"
+                                class="object-cover w-32 h-32 border-4 border-white shadow-md rounded-2xl ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                onclick="bukaPreviewFoto(this.src, 'Preview Foto')"
+                                title="Klik untuk preview">
+                            <button type="button" id="removePhoto"
+                                class="absolute flex items-center justify-center w-6 h-6 text-white transition-colors bg-red-500 rounded-full shadow-sm -top-2 -right-2 hover:bg-red-600">
                                 <i class="text-xs fa-solid fa-xmark"></i>
                             </button>
                         </div>

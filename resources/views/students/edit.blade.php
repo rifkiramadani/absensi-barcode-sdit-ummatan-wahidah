@@ -97,7 +97,6 @@
                 <div class="flex flex-col col-span-2 gap-4 p-6 mt-4 border rounded-2xl @error('photo') border-red-200 bg-red-50/30 @else border-gray-100 bg-gray-50 @enderror">
                     <div class="flex items-center justify-between">
                         <label class="block text-sm font-bold text-gray-700">Ubah Foto Siswa</label>
-                        {{-- Validasi Error Foto --}}
                         @error('photo')
                             <span class="text-xs font-bold text-red-500 animate-pulse">
                                 <i class="mr-1 fa-solid fa-circle-exclamation"></i> {{ $message }}
@@ -106,10 +105,16 @@
                     </div>
 
                     <div class="flex items-center gap-6">
-                        <div class="relative flex-shrink-0">
+                        <div class="relative flex-shrink-0 group">
                             <img id="photoPreview"
-                                 src="{{ $student->photo ? asset('storage/' . $student->photo) : asset('assets/images/photos/default-photo.svg') }}"
-                                 class="object-cover w-24 h-24 transition-all duration-300 border-4 border-white shadow-md rounded-2xl ring-1 ring-gray-100">
+                                src="{{ $student->photo ? asset('storage/' . $student->photo) : asset('assets/images/photos/default-photo.svg') }}"
+                                class="object-cover w-24 h-24 transition-all duration-300 border-4 border-white shadow-md rounded-2xl ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE]"
+                                onclick="bukaPreviewFoto(this.src, '{{ addslashes($student->name) }}')"
+                                title="Klik untuk preview">
+                            {{-- Overlay hint --}}
+                            <div class="absolute inset-0 flex items-center justify-center transition-opacity opacity-0 pointer-events-none rounded-2xl bg-black/20 group-hover:opacity-100">
+                                <i class="text-lg text-white fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
                         </div>
                         <div class="flex-1">
                             <p class="mb-3 text-xs italic text-gray-400">*Kosongkan jika foto tidak ingin diganti</p>
