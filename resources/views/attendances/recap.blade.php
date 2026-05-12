@@ -203,8 +203,8 @@
                             <form action="{{ route('attendance.destroy', $item) }}" method="POST"
                                 onsubmit="return confirm('Hapus data absensi ini?')" class="inline">
                                 @csrf @method('DELETE')
-                                <button class="p-2 text-gray-400 transition rounded-lg hover:text-red-500 hover:bg-red-50">
-                                    <i class="fa-solid fa-trash-can"></i>
+                                <button class="p-2 text-red-600 transition-all rounded-lg bg-red-50 hover:bg-red-100">
+                                    <i class="fa-solid fa-trash"></i>
                                 </button>
                             </form>
                         </div>
