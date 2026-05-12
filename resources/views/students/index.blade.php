@@ -97,7 +97,7 @@
                         {{-- ... (Isi <td> sama seperti kode sebelumnya) ... --}}
                         <td class="py-4 pl-6 pr-3 whitespace-nowrap">
                             <div class="flex items-center">
-                                <img class="object-cover w-10 h-10 border-2 border-white rounded-full shadow-sm ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                <img class="object-cover w-14 h-14 border-2 border-white rounded-full shadow-sm ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
                                     src="{{ $s->photo ? asset('storage/'.$s->photo) : asset('assets/images/photos/default-photo.svg') }}"
                                     onclick="bukaPreviewFoto('{{ $s->photo ? asset('storage/'.$s->photo) : asset('assets/images/photos/default-photo.svg') }}', '{{ addslashes($s->name) }}')"
                                     alt="{{ $s->name }}" title="Klik untuk preview">

@@ -139,7 +139,7 @@
                             <img
                                 src="{{ $item->student->photo ? asset('storage/'.$item->student->photo) : asset('assets/images/photos/default-photo.svg') }}"
                                 onclick="bukaPreviewFoto('{{ $item->student->photo ? asset('storage/'.$item->student->photo) : asset('assets/images/photos/default-photo.svg') }}', '{{ addslashes($item->student->name) }}')"
-                                class="object-cover w-10 h-10 border-2 border-white rounded-full shadow-sm ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                class="object-cover rounded-full w-14 h-14 border-2 border-white shadow-sm ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
                                 title="Klik untuk preview">
                             <div class="absolute inset-0 flex items-center justify-center transition-opacity rounded-full opacity-0 pointer-events-none bg-black/20 group-hover:opacity-100">
                                 <i class="fa-solid fa-magnifying-glass-plus text-white text-[8px]"></i>

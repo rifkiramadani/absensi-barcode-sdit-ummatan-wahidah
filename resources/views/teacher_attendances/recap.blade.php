@@ -121,7 +121,7 @@
                     <td class="p-4">
                         <div class="flex items-center gap-3">
                             <div class="relative flex-shrink-0 group">
-                                <img class="object-cover rounded-full w-9 h-9 ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                <img class="object-cover rounded-full w-14 h-14 border-2 border-white shadow-sm ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
                                     src="{{ $a->teacher->photo ? asset('storage/'.$a->teacher->photo) : asset('assets/images/photos/default-photo.svg') }}"
                                     onclick="bukaPreviewFoto('{{ $a->teacher->photo ? asset('storage/'.$a->teacher->photo) : asset('assets/images/photos/default-photo.svg') }}', '{{ addslashes($a->teacher->name) }}')"
                                     title="Klik untuk preview">

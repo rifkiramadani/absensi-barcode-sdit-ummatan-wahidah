@@ -69,7 +69,7 @@
                         <tr class="transition-colors hover:bg-gray-50/50">
                             <td class="py-4 pl-6 pr-3 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
-                                    <img class="object-cover w-10 h-10 border-2 border-white rounded-full shadow-sm ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                    <img class="object-cover w-14 h-14 border-2 border-white rounded-full shadow-sm ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
                                         src="{{ $teacher->photo ? asset('storage/' . $teacher->photo) : asset('assets/images/photos/default-photo.svg') }}"
                                         onclick="bukaPreviewFoto('{{ $teacher->photo ? asset('storage/'.$teacher->photo) : asset('assets/images/photos/default-photo.svg') }}', '{{ addslashes($teacher->name) }}')"
                                         title="Klik untuk preview">
