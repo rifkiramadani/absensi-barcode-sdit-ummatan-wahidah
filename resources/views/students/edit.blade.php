@@ -111,18 +111,34 @@
                                 class="object-cover w-24 h-24 transition-all duration-300 border-4 border-white shadow-md rounded-2xl ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE]"
                                 onclick="bukaPreviewFoto(this.src, '{{ addslashes($student->name) }}')"
                                 title="Klik untuk preview">
-                            {{-- Overlay hint --}}
                             <div class="absolute inset-0 flex items-center justify-center transition-opacity opacity-0 pointer-events-none rounded-2xl bg-black/20 group-hover:opacity-100">
                                 <i class="text-lg text-white fa-solid fa-magnifying-glass-plus"></i>
                             </div>
+                            {{-- Tombol hapus foto --}}
+                            @if($student->photo)
+                            <button type="button" id="btnHapusFoto"
+                                onclick="hapusFotoSiswa()"
+                                class="absolute z-10 flex items-center justify-center w-6 h-6 text-white transition-all bg-red-500 rounded-full shadow-md -top-2 -right-2 hover:bg-red-600"
+                                title="Hapus foto">
+                                <i class="text-xs fa-solid fa-xmark"></i>
+                            </button>
+                            @endif
                         </div>
                         <div class="flex-1">
                             <p class="mb-3 text-xs italic text-gray-400">*Kosongkan jika foto tidak ingin diganti</p>
                             <input type="file" name="photo" id="photoInput" accept="image/*"
                                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#773DCE] hover:file:bg-purple-100 transition-all">
                             <p class="mt-2 text-[10px] text-gray-400">Format: PNG, JPG, JPEG (Maks. 2MB)</p>
+
+                            {{-- Info foto dihapus --}}
+                            <p id="infoHapusFoto" class="hidden mt-2 text-xs font-semibold text-red-500">
+                                <i class="mr-1 fa-solid fa-triangle-exclamation"></i> Foto akan dihapus saat disimpan
+                            </p>
                         </div>
                     </div>
+
+                    {{-- Hidden input untuk tandai hapus foto --}}
+                    <input type="hidden" name="hapus_foto" id="hapusFotoInput" value="0">
                 </div>
             </div>
 
@@ -144,17 +160,35 @@
 
 {{-- Script Preview Gambar --}}
 <script>
-    document.getElementById('photoInput').onchange = function (evt) {
+    const DEFAULT_PHOTO = "{{ asset('assets/images/photos/default-photo.svg') }}";
+
+    document.getElementById('photoInput').onchange = function(evt) {
         const [file] = this.files;
         if (file) {
             if (file.type.startsWith('image/')) {
-                const photoPreview = document.getElementById('photoPreview');
-                photoPreview.src = URL.createObjectURL(file);
+                document.getElementById('photoPreview').src = URL.createObjectURL(file);
+                // Kalau pilih foto baru, batalkan hapus
+                document.getElementById('hapusFotoInput').value = '0';
+                document.getElementById('infoHapusFoto').classList.add('hidden');
             } else {
-                alert("Mohon pilih file gambar (JPG, PNG, atau SVG).");
+                alert("Mohon pilih file gambar (JPG, PNG, atau JPEG).");
                 this.value = "";
             }
         }
     };
+
+    function hapusFotoSiswa() {
+        if (!confirm('Hapus foto siswa ini?')) return;
+        // Set preview ke default
+        document.getElementById('photoPreview').src = DEFAULT_PHOTO;
+        // Tandai untuk dihapus
+        document.getElementById('hapusFotoInput').value = '1';
+        // Kosongkan input file
+        document.getElementById('photoInput').value = '';
+        // Tampilkan info
+        document.getElementById('infoHapusFoto').classList.remove('hidden');
+        // Sembunyikan tombol hapus
+        document.getElementById('btnHapusFoto').classList.add('hidden');
+    }
 </script>
 @endsection

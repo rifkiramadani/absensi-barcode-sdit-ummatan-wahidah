@@ -92,10 +92,16 @@ class StudentController extends Controller
             'photo'           => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['hapus_foto']);
 
+        // Handle hapus foto
+        if ($request->hapus_foto == '1' && $student->photo) {
+            Storage::disk('public')->delete($student->photo);
+            $data['photo'] = null;
+        }
+
+        // Handle upload foto baru
         if ($request->hasFile('photo')) {
-            // Hapus foto lama jika ada foto baru
             if ($student->photo) {
                 Storage::disk('public')->delete($student->photo);
             }

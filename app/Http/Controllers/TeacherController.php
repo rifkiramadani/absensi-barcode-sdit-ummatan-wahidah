@@ -71,17 +71,30 @@ class TeacherController extends Controller
     public function update(Request $request, Teacher $teacher)
     {
         $request->validate([
+            'name'     => 'required|string|max:255',
+            'gender'   => 'required|in:L,P',
+            'nip'      => 'nullable|unique:teachers,nip,' . $teacher->id,
+            'jabatan'  => 'nullable|string|max:255',
+            'no_hp'    => 'nullable|string|max:20',
             'rfid_uid' => [
                 'required',
                 Rule::unique('teachers', 'rfid_uid')->ignore($teacher->id),
-                'unique:students,rfid_uid', // cek ke tabel siswa
+                'unique:students,rfid_uid',
             ],
+            'photo'    => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
         ], [
             'rfid_uid.unique' => 'RFID ini sudah digunakan oleh siswa atau guru lain!',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['hapus_foto']);
 
+        // Handle hapus foto
+        if ($request->hapus_foto == '1' && $teacher->photo) {
+            Storage::disk('public')->delete($teacher->photo);
+            $data['photo'] = null;
+        }
+
+        // Handle upload foto baru
         if ($request->hasFile('photo')) {
             if ($teacher->photo) {
                 Storage::disk('public')->delete($teacher->photo);
@@ -91,8 +104,7 @@ class TeacherController extends Controller
 
         $teacher->update($data);
 
-        return redirect()->route('teacher.index')
-            ->with('success', 'Data guru berhasil diperbarui!');
+        return redirect()->route('teacher.index')->with('success', 'Data guru berhasil diperbarui!');
     }
 
     public function destroy(Teacher $teacher)
