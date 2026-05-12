@@ -120,8 +120,15 @@
                 <tr class="transition hover:bg-gray-50/50">
                     <td class="p-4">
                         <div class="flex items-center gap-3">
-                            <img class="object-cover rounded-full w-9 h-9 ring-1 ring-gray-100"
-                                src="{{ $a->teacher->photo ? asset('storage/'.$a->teacher->photo) : asset('assets/images/photos/default-photo.svg') }}">
+                            <div class="relative flex-shrink-0 group">
+                                <img class="object-cover rounded-full w-9 h-9 ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                    src="{{ $a->teacher->photo ? asset('storage/'.$a->teacher->photo) : asset('assets/images/photos/default-photo.svg') }}"
+                                    onclick="bukaPreviewFoto('{{ $a->teacher->photo ? asset('storage/'.$a->teacher->photo) : asset('assets/images/photos/default-photo.svg') }}', '{{ addslashes($a->teacher->name) }}')"
+                                    title="Klik untuk preview">
+                                <div class="absolute inset-0 flex items-center justify-center transition-opacity rounded-full opacity-0 pointer-events-none bg-black/20 group-hover:opacity-100">
+                                    <i class="fa-solid fa-magnifying-glass-plus text-white text-[8px]"></i>
+                                </div>
+                            </div>
                             <div>
                                 <p class="font-bold text-gray-800">{{ $a->teacher->name }}</p>
                                 <p class="text-[10px] font-mono text-gray-400 tracking-tighter uppercase">
