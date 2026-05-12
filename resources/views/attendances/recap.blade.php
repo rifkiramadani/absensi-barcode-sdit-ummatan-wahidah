@@ -121,6 +121,7 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-purple-50">
+                    <th class="p-4 text-xs font-black text-[#773DCE] uppercase tracking-wider">Foto</th>
                     <th class="p-4 text-xs font-black text-[#773DCE] uppercase tracking-wider">Siswa</th>
                     <th class="p-4 text-xs font-black text-[#773DCE] uppercase tracking-wider">Kelas</th>
                     <th class="p-4 text-xs font-black text-[#773DCE] uppercase tracking-wider">Tanggal</th>
@@ -133,6 +134,18 @@
             <tbody class="text-sm text-gray-600 divide-y divide-gray-100">
                 @forelse($attendances as $item)
                 <tr class="transition hover:bg-gray-50/50">
+                    <td class="p-4">
+                        <div class="relative inline-block group">
+                            <img
+                                src="{{ $item->student->photo ? asset('storage/'.$item->student->photo) : asset('assets/images/photos/default-photo.svg') }}"
+                                onclick="bukaPreviewFoto('{{ $item->student->photo ? asset('storage/'.$item->student->photo) : asset('assets/images/photos/default-photo.svg') }}', '{{ addslashes($item->student->name) }}')"
+                                class="object-cover w-10 h-10 border-2 border-white rounded-full shadow-sm ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                title="Klik untuk preview">
+                            <div class="absolute inset-0 flex items-center justify-center transition-opacity rounded-full opacity-0 pointer-events-none bg-black/20 group-hover:opacity-100">
+                                <i class="fa-solid fa-magnifying-glass-plus text-white text-[8px]"></i>
+                            </div>
+                        </div>
+                    </td>
                     <td class="p-4">
                         <p class="font-bold text-gray-800">{{ $item->student->name }}</p>
                         <p class="text-[10px] font-mono text-gray-400 tracking-tighter uppercase">NISN: {{ $item->student->nisn }}</p>
@@ -199,7 +212,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="p-16 text-center">
+                    <td colspan="8" class="p-16 text-center">
                         <div class="flex flex-col items-center">
                             <i class="mb-4 text-4xl text-gray-200 fa-solid fa-folder-open"></i>
                             <p class="italic text-gray-400">Tidak ada data absensi ditemukan.</p>
