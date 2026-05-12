@@ -77,7 +77,7 @@
     </div>
 
     <script>
-        function scanHandler() {
+       function scanHandler() {
             return {
                 rfid_uid: '',
                 status: 'idle',
@@ -88,21 +88,32 @@
                 barcodeHtml: '',
                 attendanceStatus: '',
                 timeout: null,
-                // Menggunakan audio yang lebih clean
-                audioSuccess: new Audio("{{ asset('assets/sounds/beep.mp3') }}"),
-                audioError: new Audio("{{ asset('assets/sounds/beep.mp3') }}"),
+                lastScanned: '',
+                lastScannedTime: 0,
+                audioSuccess: new Audio("{{ asset('assets/sounds/beep.mp3') }}"),  // TAMBAH INI
+                audioError:   new Audio("{{ asset('assets/sounds/beep.mp3') }}"),  // TAMBAH INI
 
                 handleInput() {
                     clearTimeout(this.timeout);
                     this.timeout = setTimeout(() => {
-                        if (this.rfid_uid.length >= 3) {
+                        if (this.rfid_uid.length >= 1) {
                             this.submitScan();
                         }
-                    }, 500);
+                    }, 130);
                 },
 
                 submitScan() {
                     if (!this.rfid_uid) return;
+
+                    const now = Date.now();
+
+                    if (this.rfid_uid === this.lastScanned && (now - this.lastScannedTime) < 2000) {
+                        this.rfid_uid = '';
+                        return;
+                    }
+
+                    this.lastScanned     = this.rfid_uid;
+                    this.lastScannedTime = now;
 
                     fetch("/scan/store", {
                         method: 'POST',
@@ -118,30 +129,26 @@
                         return response.json();
                     })
                     .then(data => {
-                        this.status = data.status;
-                        this.message = data.message;
-                        this.studentName = data.student_name;
-                        this.studentPhoto = data.student_photo;
-                        this.studentBarcode = data.barcode;
-                        this.barcodeHtml = data.barcode_html;
+                        this.status           = data.status;
+                        this.message          = data.message;
+                        this.studentName      = data.student_name;
+                        this.studentPhoto     = data.student_photo;
+                        this.studentBarcode   = data.barcode;
+                        this.barcodeHtml      = data.barcode_html;
                         this.attendanceStatus = data.attendance_status;
 
-                        this.audioSuccess.play();
+                        this.audioSuccess.play().catch(() => {});
                         this.rfid_uid = '';
 
-                        setTimeout(() => {
-                            if(this.status !== 'error') this.status = 'idle';
-                        }, 5000);
+                        setTimeout(() => { this.status = 'idle'; }, 3500);
                     })
                     .catch(error => {
-                        this.status = 'error';
-                        this.message = error.message || 'Siswa tidak ditemukan!';
+                        this.status   = 'error';
+                        this.message  = error.message || 'Kartu tidak terdaftar!';
                         this.rfid_uid = '';
-                        this.audioError.play();
+                        this.audioError.play().catch(() => {});
 
-                        setTimeout(() => {
-                            this.status = 'idle';
-                        }, 3000);
+                        setTimeout(() => { this.status = 'idle'; }, 2000);
                     });
                 }
             }
