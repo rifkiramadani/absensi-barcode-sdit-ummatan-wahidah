@@ -12,7 +12,12 @@
                 Pencatatan perilaku, prestasi, pelanggaran, dan catatan penting siswa SDIT Ummatan Wahidah.
             </p>
         </div>
-        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <div class="flex gap-2 mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            {{-- Tombol Export --}}
+            <a href="{{ route('student_case.export', request()->query()) }}"
+                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-green-600 rounded-xl shadow-lg shadow-green-100 hover:bg-green-700 transition-all">
+                <i class="fa-solid fa-file-excel"></i> Export
+            </a>
             <a href="{{ route('student_case.create') }}"
                 class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-white bg-[#773DCE] rounded-xl shadow-lg shadow-purple-100 hover:bg-[#5e2faf] transition-all">
                 <i class="mr-2 fa-solid fa-plus"></i> Tambah Catatan
@@ -34,39 +39,75 @@
 
     {{-- Filter --}}
     <div class="mt-4">
-        <form action="{{ route('student_case.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
-            <div class="relative w-full max-w-xs">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
-                    <i class="text-xs fa-solid fa-magnifying-glass"></i>
+        <form action="{{ route('student_case.index') }}" method="GET"
+            class="p-5 bg-white border border-gray-100 shadow-sm rounded-2xl">
+
+            <div class="flex flex-wrap items-end gap-3">
+
+                {{-- Search --}}
+                <div class="flex flex-col flex-1 gap-1 min-w-[200px]">
+                    <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest">Cari Siswa</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+                            <i class="text-xs fa-solid fa-magnifying-glass"></i>
+                        </div>
+                        <input type="text" name="search" value="{{ $search }}" placeholder="Nama atau NISN..."
+                            class="block w-full pl-9 py-2.5 text-sm border border-gray-200 rounded-xl focus:border-[#773DCE] focus:ring focus:ring-purple-100">
+                    </div>
                 </div>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama atau NISN siswa..."
-                    class="block w-full pl-10 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:border-[#773DCE]">
+
+                {{-- Kategori --}}
+                <div class="flex flex-col flex-1 gap-1 min-w-[160px]">
+                    <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest">Kategori</label>
+                    <select name="kategori"
+                        class="py-2.5 px-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl focus:border-[#773DCE] focus:ring focus:ring-purple-100 appearance-none cursor-pointer">
+                        <option value="">Semua Kategori</option>
+                        @foreach($kategoriList as $nama => $config)
+                            <option value="{{ $nama }}" {{ $kategori == $nama ? 'selected' : '' }}>{{ $nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Kelas --}}
+                <div class="flex flex-col flex-1 gap-1 min-w-[140px]">
+                    <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest">Kelas</label>
+                    <select name="school_class_id"
+                        class="py-2.5 px-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl focus:border-[#773DCE] focus:ring focus:ring-purple-100 appearance-none cursor-pointer">
+                        <option value="">Semua Kelas</option>
+                        @foreach($classes as $class)
+                            <option value="{{ $class->id }}" {{ $classId == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Tanggal Mulai --}}
+                <div class="flex flex-col flex-1 gap-1 min-w-[150px]">
+                    <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest">Dari Tanggal</label>
+                    <input type="date" name="start_date" value="{{ $startDate }}"
+                        class="py-2.5 px-3 text-sm border border-gray-200 rounded-xl focus:border-[#773DCE] focus:ring focus:ring-purple-100">
+                </div>
+
+                {{-- Tanggal Selesai --}}
+                <div class="flex flex-col flex-1 gap-1 min-w-[150px]">
+                    <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest">Sampai Tanggal</label>
+                    <input type="date" name="end_date" value="{{ $endDate }}"
+                        class="py-2.5 px-3 text-sm border border-gray-200 rounded-xl focus:border-[#773DCE] focus:ring focus:ring-purple-100">
+                </div>
+
+                {{-- Tombol --}}
+                <div class="flex gap-2">
+                    <button type="submit"
+                        class="px-6 py-2.5 text-sm font-bold text-white bg-[#773DCE] shadow-lg shadow-purple-100 rounded-xl hover:bg-[#5e2faf] active:scale-95 transition">
+                        <i class="mr-1 fa-solid fa-filter"></i> Filter
+                    </button>
+                    @if($search || $kategori || $classId || $startDate || $endDate)
+                        <a href="{{ route('student_case.index') }}"
+                            class="p-2.5 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition flex items-center justify-center" title="Reset Filter">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </a>
+                    @endif
+                </div>
             </div>
-
-            <select name="kategori" onchange="this.form.submit()"
-                class="py-2.5 pl-3 pr-8 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:border-[#773DCE] appearance-none cursor-pointer">
-                <option value="">Semua Kategori</option>
-                @foreach($kategoriList as $nama => $config)
-                    <option value="{{ $nama }}" {{ $kategori == $nama ? 'selected' : '' }}>{{ $nama }}</option>
-                @endforeach
-            </select>
-
-            <select name="school_class_id" onchange="this.form.submit()"
-                class="py-2.5 pl-3 pr-8 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl focus:border-[#773DCE] appearance-none cursor-pointer">
-                <option value="">Semua Kelas</option>
-                @foreach($classes as $class)
-                    <option value="{{ $class->id }}" {{ $classId == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
-                @endforeach
-            </select>
-
-            <button type="submit" class="px-5 py-2.5 bg-gray-800 text-white text-sm font-bold rounded-xl hover:bg-gray-900 transition-all">
-                Cari
-            </button>
-
-            @if($search || $kategori || $classId)
-                <a href="{{ route('student_case.index') }}"
-                    class="px-5 py-2.5 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 text-sm font-bold">Reset</a>
-            @endif
         </form>
     </div>
 
@@ -98,8 +139,15 @@
                 <tr class="transition-colors hover:bg-gray-50/50">
                     <td class="py-4 pl-6 pr-3 whitespace-nowrap">
                         <div class="flex items-center gap-3">
-                            <img class="object-cover rounded-full w-9 h-9 ring-1 ring-gray-100"
-                                src="{{ $case->student->photo ? asset('storage/'.$case->student->photo) : asset('assets/images/photos/default-photo.svg') }}">
+                            <div class="relative group">
+                                <img class="object-cover rounded-full w-10 h-10 ring-1 ring-gray-100 cursor-zoom-in hover:ring-2 hover:ring-[#773DCE] transition-all"
+                                    src="{{ $case->student->photo ? asset('storage/'.$case->student->photo) : asset('assets/images/photos/default-photo.svg') }}"
+                                    onclick="bukaPreviewFoto('{{ $case->student->photo ? asset('storage/'.$case->student->photo) : asset('assets/images/photos/default-photo.svg') }}', '{{ addslashes($case->student->name) }}')"
+                                    title="Klik untuk preview">
+                                <div class="absolute inset-0 flex items-center justify-center transition-opacity rounded-full opacity-0 pointer-events-none bg-black/20 group-hover:opacity-100">
+                                    <i class="fa-solid fa-magnifying-glass-plus text-white text-[8px]"></i>
+                                </div>
+                            </div>
                             <div>
                                 <div class="text-sm font-bold text-gray-800">{{ $case->student->name }}</div>
                                 <div class="text-[10px] text-gray-400">{{ $case->student->schoolClass->name }}</div>
@@ -149,6 +197,7 @@
             </tbody>
         </table>
     </div>
+
     <div class="mt-6">{{ $cases->links() }}</div>
 </div>
 @endsection

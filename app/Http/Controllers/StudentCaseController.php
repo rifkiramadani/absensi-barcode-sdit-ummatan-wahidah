@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use App\Models\StudentCase;
+use App\Exports\StudentCaseExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StudentCaseController extends Controller
 {
@@ -19,10 +21,12 @@ class StudentCaseController extends Controller
 
     public function index(Request $request)
     {
-        $search   = $request->get('search');
-        $kategori = $request->get('kategori');
-        $classId  = $request->get('school_class_id');
-        $classes  = \App\Models\SchoolClass::all();
+        $search    = $request->get('search');
+        $kategori  = $request->get('kategori');
+        $classId   = $request->get('school_class_id');
+        $startDate = $request->get('start_date');
+        $endDate   = $request->get('end_date');
+        $classes   = \App\Models\SchoolClass::all();
 
         $query = StudentCase::with('student.schoolClass')->latest('tanggal_kejadian');
 
@@ -41,12 +45,37 @@ class StudentCaseController extends Controller
             $query->whereHas('student', fn($q) => $q->where('school_class_id', $classId));
         }
 
-        $cases    = $query->paginate(10)->withQueryString();
+        if ($startDate && $endDate) {
+            $query->whereBetween('tanggal_kejadian', [$startDate, $endDate]);
+        } elseif ($startDate) {
+            $query->where('tanggal_kejadian', '>=', $startDate);
+        } elseif ($endDate) {
+            $query->where('tanggal_kejadian', '<=', $endDate);
+        }
+
+        $cases        = $query->paginate(10)->withQueryString();
         $kategoriList = self::KATEGORI;
 
         return view('student_cases.index', compact(
-            'cases', 'search', 'kategori', 'classes', 'classId', 'kategoriList'
+            'cases', 'search', 'kategori', 'classes', 'classId',
+            'kategoriList', 'startDate', 'endDate'
         ));
+    }
+
+    public function export(Request $request)
+    {
+        $search    = $request->get('search');
+        $kategori  = $request->get('kategori');
+        $classId   = $request->get('school_class_id');
+        $startDate = $request->get('start_date');
+        $endDate   = $request->get('end_date');
+
+        $fileName = 'buku_catatan_siswa_' . now()->format('Y-m-d_His') . '.xlsx';
+
+        return Excel::download(
+            new StudentCaseExport($search, $kategori, $classId, $startDate, $endDate),
+            $fileName
+        );
     }
 
     public function create()

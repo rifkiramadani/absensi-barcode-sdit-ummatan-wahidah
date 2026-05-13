@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/student-case', [StudentCaseController::class, 'index'])->name('student_case.index');
     Route::get('/student-case/create', [StudentCaseController::class, 'create'])->name('student_case.create');
     Route::post('/student-case', [StudentCaseController::class, 'store'])->name('student_case.store');
+    Route::get('/student-case/export', [StudentCaseController::class, 'export'])->name('student_case.export'); // <-- TAMBAH INI
     Route::get('/student-case/{studentCase}/edit', [StudentCaseController::class, 'edit'])->name('student_case.edit');
     Route::put('/student-case/{studentCase}', [StudentCaseController::class, 'update'])->name('student_case.update');
     Route::delete('/student-case/{studentCase}', [StudentCaseController::class, 'destroy'])->name('student_case.destroy');
