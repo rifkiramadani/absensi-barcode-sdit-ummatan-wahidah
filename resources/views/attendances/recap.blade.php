@@ -13,6 +13,7 @@
          keterangan    = $event.detail.keteranganAwal || 'Izin';
          catatanEdit   = $event.detail.catatan;
          show          = true;
+         $nextTick(() => { document.getElementById('finalStudentId').value = $event.detail.studentId; });
      ">
 <div class="p-8 bg-white border border-gray-100 shadow-sm rounded-[2rem]">
 
@@ -72,7 +73,6 @@
                 </select>
             </div>
 
-            {{-- FILTER KETERANGAN --}}
             <div class="flex flex-col flex-1 gap-2">
                 <label class="text-[10px] font-black text-[#773DCE] uppercase tracking-widest ml-1">Keterangan</label>
                 <select name="keterangan" class="w-full text-sm border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-[#773DCE] transition-all">
@@ -171,7 +171,11 @@
                     <td class="p-4 text-center">
                         @if($item->keterangan)
                             @php
-                                $kColors = ['Izin' => ['bg'=>'#EFF6FF','border'=>'#BFDBFE','text'=>'#1D4ED8'], 'Sakit' => ['bg'=>'#FFF7ED','border'=>'#FED7AA','text'=>'#C2410C'], 'Alpa' => ['bg'=>'#FEF2F2','border'=>'#FECACA','text'=>'#B91C1C']];
+                                $kColors = [
+                                    'Izin'  => ['bg'=>'#EFF6FF','border'=>'#BFDBFE','text'=>'#1D4ED8'],
+                                    'Sakit' => ['bg'=>'#FFF7ED','border'=>'#FED7AA','text'=>'#C2410C'],
+                                    'Alpa'  => ['bg'=>'#FEF2F2','border'=>'#FECACA','text'=>'#B91C1C'],
+                                ];
                                 $kc = $kColors[$item->keterangan] ?? ['bg'=>'#F9FAFB','border'=>'#E5E7EB','text'=>'#6B7280'];
                             @endphp
                             <span class="px-2.5 py-1 text-[10px] font-black rounded-lg"
@@ -187,7 +191,6 @@
                     </td>
                     <td class="p-4 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            {{-- Tombol Edit Keterangan --}}
                             <button type="button"
                                 onclick="bukaEditKeterangan(
                                     {{ $item->student_id }},
@@ -199,7 +202,6 @@
                                 class="p-2 text-blue-600 transition-all rounded-lg bg-blue-50 hover:bg-blue-100" title="Edit Keterangan">
                                 <i class="fa-solid fa-pen-clip"></i>
                             </button>
-                            {{-- Tombol Hapus --}}
                             <form action="{{ route('attendance.destroy', $item) }}" method="POST"
                                 onsubmit="return confirm('Hapus data absensi ini?')" class="inline">
                                 @csrf @method('DELETE')
@@ -246,6 +248,13 @@
         <form action="{{ route('attendance.keterangan') }}" method="POST" class="flex flex-col gap-4">
             @csrf
 
+            {{--
+                SATU hidden field untuk student_id.
+                Diisi via JS: bukaEditKeterangan() untuk edit mode,
+                guruSearch().select() untuk input baru.
+            --}}
+            <input type="hidden" name="student_id" id="finalStudentId">
+
             {{-- Pilih Siswa — hanya tampil jika bukan mode edit --}}
             <div x-show="!editMode" x-data="studentSearch()">
                 <label class="block mb-2 text-xs font-bold tracking-wider text-gray-500 uppercase">Pilih Siswa</label>
@@ -257,7 +266,6 @@
                         placeholder="Ketik nama siswa..."
                         class="block w-full pl-9 border-gray-200 rounded-xl text-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100">
                 </div>
-                <input type="hidden" name="student_id" x-model="selectedId">
                 <div x-show="selectedName" class="flex items-center gap-2 px-3 py-2 mt-2 border border-purple-100 bg-purple-50 rounded-xl">
                     <i class="fa-solid fa-circle-check text-[#773DCE] text-xs"></i>
                     <span class="text-sm font-bold text-[#773DCE]" x-text="selectedName"></span>
@@ -279,9 +287,6 @@
                     Siswa tidak ditemukan.
                 </div>
             </div>
-
-            {{-- Jika mode edit, kirim student_id via hidden --}}
-            <input type="hidden" name="student_id" x-show="editMode" :value="studentIdEdit">
 
             {{-- Tanggal --}}
             <div>
@@ -357,20 +362,25 @@ function keteranganModal() {
         catatanEdit: '',
 
         openModal() {
-            this.editMode    = false;
-            this.namaEdit    = '';
+            this.editMode      = false;
+            this.namaEdit      = '';
             this.studentIdEdit = '';
-            this.tanggalEdit = '';
-            this.catatanEdit = '';
-            this.keterangan  = 'Izin';
-            this.show        = true;
+            this.tanggalEdit   = '';
+            this.catatanEdit   = '';
+            this.keterangan    = 'Izin';
+            this.show          = true;
+            // Reset hidden field saat buka modal input baru
+            this.$nextTick(() => {
+                document.getElementById('finalStudentId').value = '';
+            });
         }
     }
 }
 
-// Dipanggil dari tombol edit di tabel
 function bukaEditKeterangan(studentId, nama, tanggal, keteranganAwal, catatan) {
-    // Dispatch ke Alpine component
+    // Set hidden field langsung via JS
+    document.getElementById('finalStudentId').value = studentId;
+
     window.dispatchEvent(new CustomEvent('buka-edit', {
         detail: { studentId, nama, tanggal, keteranganAwal, catatan }
     }));
@@ -379,7 +389,6 @@ function bukaEditKeterangan(studentId, nama, tanggal, keteranganAwal, catatan) {
 function studentSearch() {
     return {
         search: '',
-        selectedId: '',
         selectedName: '',
         open: false,
         results: [],
@@ -396,7 +405,8 @@ function studentSearch() {
         },
 
         select(s) {
-            this.selectedId   = s.id;
+            // Set ke hidden field global
+            document.getElementById('finalStudentId').value = s.id;
             this.selectedName = s.name + ' — ' + s.kelas;
             this.search       = '';
             this.open         = false;
@@ -404,9 +414,9 @@ function studentSearch() {
         },
 
         clear() {
-            this.selectedId = '';
+            document.getElementById('finalStudentId').value = '';
             this.selectedName = '';
-            this.search = '';
+            this.search       = '';
         }
     }
 }

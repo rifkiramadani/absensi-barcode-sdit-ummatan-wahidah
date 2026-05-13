@@ -12,22 +12,22 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceController extends Controller
 {
-  public function recap(Request $request)
+    public function recap(Request $request)
     {
-        $filter      = $request->get('filter', 'daily');
-        $classId     = $request->get('school_class_id');
-        $startDate   = $request->get('start_date');
-        $endDate     = $request->get('end_date');
-        $search      = $request->get('search');
-        $keterangan  = $request->get('keterangan'); // TAMBAH INI
-        $classes     = SchoolClass::all();
+        $filter     = $request->get('filter', 'daily');
+        $classId    = $request->get('school_class_id');
+        $startDate  = $request->get('start_date');
+        $endDate    = $request->get('end_date');
+        $search     = $request->get('search');
+        $keterangan = $request->get('keterangan');
+        $classes    = SchoolClass::all();
 
         $query = Attendance::with(['student.schoolClass'])->latest('date');
 
         if ($search) {
             $query->whereHas('student', function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                ->orWhere('nisn', 'LIKE', "%{$search}%");
+                  ->orWhere('nisn', 'LIKE', "%{$search}%");
             });
         }
 
@@ -35,13 +35,10 @@ class AttendanceController extends Controller
             $query->whereHas('student', fn($q) => $q->where('school_class_id', $classId));
         }
 
-        // TAMBAH INI — filter keterangan
         if ($keterangan) {
             if ($keterangan === 'Tidak Hadir') {
-                // Tampilkan semua yang punya keterangan (Izin/Sakit/Alpa)
                 $query->whereNotNull('keterangan');
             } elseif ($keterangan === 'Hadir') {
-                // Tampilkan yang hadir/telat tanpa keterangan
                 $query->whereIn('status', ['Hadir', 'Telat'])->whereNull('keterangan');
             } else {
                 $query->where('keterangan', $keterangan);
@@ -66,7 +63,10 @@ class AttendanceController extends Controller
                     $query->whereYear('date', $date->year);
                     break;
                 default:
-                    if (!$search && !$keterangan) $query->whereDate('date', Carbon::today());
+                    // Hanya batasi ke hari ini jika tidak ada filter apapun
+                    if (!$search && !$keterangan && !$classId) {
+                        $query->whereDate('date', Carbon::today());
+                    }
                     break;
             }
         }
@@ -100,17 +100,15 @@ class AttendanceController extends Controller
         ]);
 
         $existing = Attendance::where('student_id', $request->student_id)
-                            ->where('date', $request->date)
-                            ->first();
+                               ->where('date', $request->date)
+                               ->first();
 
         if ($existing) {
-            // Sudah ada record scan → hanya tambah/update keterangan, jangan timpa check_in/status
             $existing->update([
                 'keterangan'         => $request->keterangan,
                 'catatan_keterangan' => $request->catatan_keterangan,
             ]);
         } else {
-            // Belum ada record → buat baru, check_in & status dibiarkan NULL
             Attendance::create([
                 'student_id'         => $request->student_id,
                 'date'               => $request->date,
@@ -119,7 +117,9 @@ class AttendanceController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Keterangan siswa berhasil disimpan!');
+        // Redirect ke filter monthly agar data langsung terlihat
+        return redirect()->route('attendance.recap', ['filter' => 'monthly'])
+            ->with('success', 'Keterangan siswa berhasil disimpan!');
     }
 
     public function destroy(Attendance $attendance)

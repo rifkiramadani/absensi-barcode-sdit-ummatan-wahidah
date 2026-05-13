@@ -8,6 +8,7 @@
 
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-[#773DCE]"></div>
 
+            {{-- STATE: IDLE --}}
             <div x-show="status === 'idle'" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 transform scale-95"
                 x-transition:enter-end="opacity-100 transform scale-100">
@@ -18,9 +19,12 @@
                 <p class="mt-2 text-sm font-medium tracking-widest text-gray-400 uppercase">Silahkan scan kartu siswa</p>
             </div>
 
-            <div x-show="status !== 'idle' && status !== 'error'" x-transition:enter="transition ease-out duration-300"
+            {{-- STATE: SUCCESS / INFO / PULANG (hadir normal) --}}
+            <div x-show="status === 'success' || status === 'info'"
+                x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 transform translateY(20px)"
-                x-transition:enter-end="opacity-100 transform translateY(0)" class="flex flex-col items-center">
+                x-transition:enter-end="opacity-100 transform translateY(0)"
+                class="flex flex-col items-center">
 
                 <div class="relative mb-6">
                     <div class="absolute bg-purple-100 rounded-full opacity-50 -inset-2 blur-lg animate-pulse"></div>
@@ -31,8 +35,8 @@
                         :class="{
                             'bg-green-500 shadow-green-100': attendanceStatus === 'Hadir',
                             'bg-amber-500 shadow-amber-100': attendanceStatus === 'Telat',
-                            'bg-blue-500 shadow-blue-100': attendanceStatus === 'Pulang',
-                            'bg-gray-500 shadow-gray-100': attendanceStatus === 'Selesai'
+                            'bg-blue-500 shadow-blue-100':  attendanceStatus === 'Pulang',
+                            'bg-gray-500 shadow-gray-100':  attendanceStatus === 'Selesai',
                         }"
                         x-text="attendanceStatus">
                     </div>
@@ -51,6 +55,74 @@
                 </div>
             </div>
 
+            {{-- STATE: KETERANGAN (Izin / Sakit / Alpa) --}}
+            <div x-show="status === 'keterangan'"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 transform scale-95"
+                x-transition:enter-end="opacity-100 transform scale-100"
+                class="flex flex-col items-center">
+
+                <div class="relative mb-6">
+                    {{-- Glow warna sesuai keterangan --}}
+                    <div class="absolute rounded-full opacity-40 -inset-2 blur-lg animate-pulse"
+                        :class="{
+                            'bg-blue-200':   keterangan === 'Izin',
+                            'bg-orange-200': keterangan === 'Sakit',
+                            'bg-red-200':    keterangan === 'Alpa',
+                        }"></div>
+                    <img :src="studentPhoto"
+                        class="relative object-cover border-4 border-white rounded-full shadow-xl w-36 h-36"
+                        :class="{
+                            'ring-4 ring-blue-200':   keterangan === 'Izin',
+                            'ring-4 ring-orange-200': keterangan === 'Sakit',
+                            'ring-4 ring-red-200':    keterangan === 'Alpa',
+                        }">
+
+                    {{-- Badge keterangan --}}
+                    <div class="absolute -bottom-1 -right-1 px-4 py-1.5 text-[10px] font-black text-white rounded-full shadow-lg uppercase tracking-wider"
+                        :class="{
+                            'bg-blue-500 shadow-blue-200':    keterangan === 'Izin',
+                            'bg-orange-500 shadow-orange-200': keterangan === 'Sakit',
+                            'bg-red-500 shadow-red-200':       keterangan === 'Alpa',
+                        }"
+                        x-text="attendanceStatus">
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-black leading-tight text-gray-800" x-text="studentName"></h3>
+
+                {{-- Icon besar sesuai keterangan --}}
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mt-4 mb-3 rounded-2xl"
+                    :class="{
+                        'bg-blue-50':   keterangan === 'Izin',
+                        'bg-orange-50': keterangan === 'Sakit',
+                        'bg-red-50':    keterangan === 'Alpa',
+                    }">
+                    <i class="text-3xl fa-solid"
+                        :class="{
+                            'fa-file-circle-check text-blue-500':  keterangan === 'Izin',
+                            'fa-kit-medical text-orange-500':      keterangan === 'Sakit',
+                            'fa-circle-xmark text-red-500':        keterangan === 'Alpa',
+                        }"></i>
+                </div>
+
+                <div class="px-5 py-2 rounded-2xl"
+                    :class="{
+                        'bg-blue-50':   keterangan === 'Izin',
+                        'bg-orange-50': keterangan === 'Sakit',
+                        'bg-red-50':    keterangan === 'Alpa',
+                    }">
+                    <p class="text-sm font-bold"
+                        :class="{
+                            'text-blue-600':   keterangan === 'Izin',
+                            'text-orange-600': keterangan === 'Sakit',
+                            'text-red-600':    keterangan === 'Alpa',
+                        }"
+                        x-text="message"></p>
+                </div>
+            </div>
+
+            {{-- STATE: ERROR --}}
             <div x-show="status === 'error'" x-transition class="flex flex-col items-center">
                 <div class="flex items-center justify-center w-24 h-24 mx-auto mb-6 text-red-500 bg-red-50 rounded-3xl">
                     <i class="text-5xl fa-solid fa-circle-xmark"></i>
@@ -59,6 +131,7 @@
                 <p class="mt-2 text-sm font-bold text-gray-500" x-text="message"></p>
             </div>
 
+            {{-- Input Scan --}}
             <form @submit.prevent="submitScan" class="mt-8">
                 <div class="relative">
                     <input type="text" x-ref="rfidInput" x-model="rfid_uid" @input="handleInput()"
@@ -77,7 +150,7 @@
     </div>
 
     <script>
-       function scanHandler() {
+        function scanHandler() {
             return {
                 rfid_uid: '',
                 status: 'idle',
@@ -87,11 +160,12 @@
                 studentBarcode: '',
                 barcodeHtml: '',
                 attendanceStatus: '',
+                keterangan: '',   // Izin / Sakit / Alpa
                 timeout: null,
                 lastScanned: '',
                 lastScannedTime: 0,
-                audioSuccess: new Audio("{{ asset('assets/sounds/beep.mp3') }}"),  // TAMBAH INI
-                audioError:   new Audio("{{ asset('assets/sounds/beep.mp3') }}"),  // TAMBAH INI
+                audioSuccess: new Audio("{{ asset('assets/sounds/beep.mp3') }}"),
+                audioError:   new Audio("{{ asset('assets/sounds/beep.mp3') }}"),
 
                 handleInput() {
                     clearTimeout(this.timeout);
@@ -107,6 +181,7 @@
 
                     const now = Date.now();
 
+                    // Anti double-fire: abaikan scan kartu yang sama dalam 2 detik
                     if (this.rfid_uid === this.lastScanned && (now - this.lastScannedTime) < 2000) {
                         this.rfid_uid = '';
                         return;
@@ -133,19 +208,27 @@
                         this.message          = data.message;
                         this.studentName      = data.student_name;
                         this.studentPhoto     = data.student_photo;
-                        this.studentBarcode   = data.barcode;
-                        this.barcodeHtml      = data.barcode_html;
+                        this.studentBarcode   = data.barcode    ?? '';
+                        this.barcodeHtml      = data.barcode_html ?? '';
                         this.attendanceStatus = data.attendance_status;
+                        this.keterangan       = data.keterangan ?? ''; // Izin/Sakit/Alpa atau kosong
 
-                        this.audioSuccess.play().catch(() => {});
+                        if (data.status === 'keterangan') {
+                            // Bunyi berbeda untuk keterangan — bisa ganti file audio sesuai kebutuhan
+                            this.audioError.play().catch(() => {});
+                            setTimeout(() => { this.status = 'idle'; this.keterangan = ''; }, 4000);
+                        } else {
+                            this.audioSuccess.play().catch(() => {});
+                            setTimeout(() => { this.status = 'idle'; this.keterangan = ''; }, 3500);
+                        }
+
                         this.rfid_uid = '';
-
-                        setTimeout(() => { this.status = 'idle'; }, 3500);
                     })
                     .catch(error => {
-                        this.status   = 'error';
-                        this.message  = error.message || 'Kartu tidak terdaftar!';
-                        this.rfid_uid = '';
+                        this.status     = 'error';
+                        this.message    = error.message || 'Kartu tidak terdaftar!';
+                        this.keterangan = '';
+                        this.rfid_uid   = '';
                         this.audioError.play().catch(() => {});
 
                         setTimeout(() => { this.status = 'idle'; }, 2000);

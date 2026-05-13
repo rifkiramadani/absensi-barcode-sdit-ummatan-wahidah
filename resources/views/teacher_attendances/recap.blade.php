@@ -3,15 +3,17 @@
 @section('title', 'Rekap Absensi Guru')
 
 @section('content')
-<div x-data="guruKeteranganModal()" @buka-edit-guru.window="
-    editMode      = true;
-    namaEdit      = $event.detail.nama;
-    teacherIdEdit = $event.detail.teacherId;
-    tanggalEdit   = $event.detail.tanggal;
-    keterangan    = $event.detail.keteranganAwal || 'Izin';
-    catatanEdit   = $event.detail.catatan;
-    show          = true;
-">
+<div x-data="guruKeteranganModal()"
+     @buka-edit-guru.window="
+         editMode      = true;
+         namaEdit      = $event.detail.nama;
+         teacherIdEdit = $event.detail.teacherId;
+         tanggalEdit   = $event.detail.tanggal;
+         keterangan    = $event.detail.keteranganAwal || 'Izin';
+         catatanEdit   = $event.detail.catatan;
+         show          = true;
+         $nextTick(() => { document.getElementById('finalTeacherId').value = $event.detail.teacherId; });
+     ">
 <div class="p-8 bg-white border border-gray-100 shadow-sm rounded-[2rem]">
 
     <div class="flex flex-col justify-between gap-4 mb-8 md:flex-row md:items-center">
@@ -19,7 +21,7 @@
             <h2 class="text-2xl font-black text-gray-800">Rekapitulasi Absensi Guru</h2>
             <p class="text-sm font-medium text-gray-400">Pantau dan ekspor data kehadiran guru</p>
         </div>
-        <button type="button" @click="editMode = false; show = true"
+        <button type="button" @click="editMode = false; show = true; $nextTick(() => { document.getElementById('finalTeacherId').value = ''; })"
             class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-blue-500 rounded-xl shadow-lg shadow-blue-100 hover:bg-blue-600 transition-all">
             <i class="fa-solid fa-pen-clip"></i> Input Keterangan Guru
         </button>
@@ -193,7 +195,7 @@
                                 onsubmit="return confirm('Hapus data ini?')" class="inline">
                                 @csrf @method('DELETE')
                                 <button class="p-2 text-red-600 transition-all rounded-lg bg-red-50 hover:bg-red-100">
-                                    <i class="fa-solid fa-trash"></i>
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </form>
                         </div>
@@ -237,6 +239,13 @@
         <form action="{{ route('teacher_attendance.keterangan') }}" method="POST" class="flex flex-col gap-4">
             @csrf
 
+            {{--
+                SATU hidden field untuk teacher_id.
+                Diisi via JS: bukaEditGuru() untuk edit mode,
+                guruSearch().select() untuk input baru.
+            --}}
+            <input type="hidden" name="teacher_id" id="finalTeacherId">
+
             {{-- Pilih Guru — hanya tampil jika bukan mode edit --}}
             <div x-show="!editMode" x-data="guruSearch()">
                 <label class="block mb-2 text-xs font-bold tracking-wider text-gray-500 uppercase">Pilih Guru</label>
@@ -248,7 +257,6 @@
                         placeholder="Ketik nama guru..."
                         class="block w-full pl-9 border-gray-200 rounded-xl text-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100">
                 </div>
-                <input type="hidden" name="teacher_id" x-model="selectedId">
                 <div x-show="selectedName" class="flex items-center gap-2 px-3 py-2 mt-2 border border-purple-100 bg-purple-50 rounded-xl">
                     <i class="fa-solid fa-circle-check text-[#773DCE] text-xs"></i>
                     <span class="text-sm font-bold text-[#773DCE]" x-text="selectedName"></span>
@@ -270,8 +278,6 @@
                     Guru tidak ditemukan.
                 </div>
             </div>
-
-            <input type="hidden" name="teacher_id" x-show="editMode" :value="teacherIdEdit">
 
             {{-- Tanggal --}}
             <div>
@@ -349,6 +355,9 @@ function guruKeteranganModal() {
 }
 
 function bukaEditGuru(teacherId, nama, tanggal, keteranganAwal, catatan) {
+    // Set hidden field langsung via JS
+    document.getElementById('finalTeacherId').value = teacherId;
+
     window.dispatchEvent(new CustomEvent('buka-edit-guru', {
         detail: { teacherId, nama, tanggal, keteranganAwal, catatan }
     }));
@@ -357,7 +366,6 @@ function bukaEditGuru(teacherId, nama, tanggal, keteranganAwal, catatan) {
 function guruSearch() {
     return {
         search: '',
-        selectedId: '',
         selectedName: '',
         open: false,
         results: [],
@@ -373,7 +381,8 @@ function guruSearch() {
         },
 
         select(g) {
-            this.selectedId   = g.id;
+            // Set ke hidden field global
+            document.getElementById('finalTeacherId').value = g.id;
             this.selectedName = g.name + ' — ' + g.jabatan;
             this.search       = '';
             this.open         = false;
@@ -381,7 +390,7 @@ function guruSearch() {
         },
 
         clear() {
-            this.selectedId   = '';
+            document.getElementById('finalTeacherId').value = '';
             this.selectedName = '';
             this.search       = '';
         }

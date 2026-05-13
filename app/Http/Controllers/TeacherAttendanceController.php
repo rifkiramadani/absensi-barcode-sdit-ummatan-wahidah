@@ -18,18 +18,17 @@ class TeacherAttendanceController extends Controller
         $search     = $request->get('search');
         $startDate  = $request->get('start_date');
         $endDate    = $request->get('end_date');
-        $keterangan = $request->get('keterangan'); // TAMBAH INI
+        $keterangan = $request->get('keterangan');
 
         $query = TeacherAttendance::with('teacher')->latest('date');
 
         if ($search) {
             $query->whereHas('teacher', function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                ->orWhere('nip', 'LIKE', "%{$search}%");
+                  ->orWhere('nip', 'LIKE', "%{$search}%");
             });
         }
 
-        // TAMBAH INI — filter keterangan
         if ($keterangan) {
             if ($keterangan === 'Tidak Hadir') {
                 $query->whereNotNull('keterangan');
@@ -58,7 +57,10 @@ class TeacherAttendanceController extends Controller
                     $query->whereYear('date', $date->year);
                     break;
                 default:
-                    if (!$search && !$keterangan) $query->whereDate('date', Carbon::today());
+                    // Hanya batasi ke hari ini jika tidak ada filter apapun
+                    if (!$search && !$keterangan) {
+                        $query->whereDate('date', Carbon::today());
+                    }
                     break;
             }
         }
@@ -90,8 +92,8 @@ class TeacherAttendanceController extends Controller
         ]);
 
         $existing = TeacherAttendance::where('teacher_id', $request->teacher_id)
-                                    ->where('date', $request->date)
-                                    ->first();
+                                     ->where('date', $request->date)
+                                     ->first();
 
         if ($existing) {
             $existing->update([
@@ -107,10 +109,11 @@ class TeacherAttendanceController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Keterangan guru berhasil disimpan!');
+        // Redirect ke filter monthly agar data langsung terlihat
+        return redirect()->route('teacher_attendance.recap', ['filter' => 'monthly'])
+            ->with('success', 'Keterangan guru berhasil disimpan!');
     }
 
-    // Tambahkan method ini
     public function exportExcel(Request $request)
     {
         $filter    = $request->get('filter', 'daily');

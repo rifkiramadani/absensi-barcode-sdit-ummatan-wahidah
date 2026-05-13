@@ -61,6 +61,34 @@ class ScanController extends Controller
                                 ->where('date', $today)
                                 ->first();
 
+        // ==============================
+        // CEK KETERANGAN: Jika sudah di-set Izin/Sakit/Alpa, blok scan
+        // ==============================
+        if ($attendance && $attendance->keterangan) {
+            $keteranganLabel = match($attendance->keterangan) {
+                'Izin'  => 'Izin',
+                'Sakit' => 'Sakit',
+                'Alpa'  => 'Alpa',
+                default => $attendance->keterangan,
+            };
+
+            $catatan = $attendance->catatan_keterangan
+                ? ' (' . $attendance->catatan_keterangan . ')'
+                : '';
+
+            return response()->json([
+                'status'            => 'keterangan',
+                'type'              => 'siswa',
+                'message'           => $student->name . ' tercatat ' . $keteranganLabel . $catatan . ' hari ini.',
+                'student_name'      => $student->name,
+                'student_photo'     => $student->photo ? asset('storage/' . $student->photo) : asset('assets/images/photos/default-photo.svg'),
+                'attendance_status' => $keteranganLabel,
+                'keterangan'        => $attendance->keterangan,
+                'barcode'           => $student->rfid_uid,
+                'barcode_html'      => $barcodeHtml,
+            ]);
+        }
+
         // Sudah ada record hari ini → proses absen pulang
         if ($attendance) {
             if (is_null($attendance->check_out)) {
@@ -128,6 +156,34 @@ class ScanController extends Controller
                                        ->where('date', $today)
                                        ->first();
 
+        // ==============================
+        // CEK KETERANGAN: Jika sudah di-set Izin/Sakit/Alpa, blok scan
+        // ==============================
+        if ($attendance && $attendance->keterangan) {
+            $keteranganLabel = match($attendance->keterangan) {
+                'Izin'  => 'Izin',
+                'Sakit' => 'Sakit',
+                'Alpa'  => 'Alpa',
+                default => $attendance->keterangan,
+            };
+
+            $catatan = $attendance->catatan_keterangan
+                ? ' (' . $attendance->catatan_keterangan . ')'
+                : '';
+
+            return response()->json([
+                'status'            => 'keterangan',
+                'type'              => 'guru',
+                'message'           => $teacher->name . ' tercatat ' . $keteranganLabel . $catatan . ' hari ini.',
+                'student_name'      => $teacher->name . ' (Guru)',
+                'student_photo'     => $teacher->photo ? asset('storage/' . $teacher->photo) : asset('assets/images/photos/default-photo.svg'),
+                'attendance_status' => $keteranganLabel,
+                'keterangan'        => $attendance->keterangan,
+                'barcode'           => $teacher->rfid_uid,
+                'barcode_html'      => $barcodeHtml,
+            ]);
+        }
+
         // Sudah ada record hari ini → proses absen pulang
         if ($attendance) {
             if (is_null($attendance->check_out)) {
@@ -158,9 +214,9 @@ class ScanController extends Controller
         }
 
         // Belum ada record → proses absen masuk guru
-        $setting         = Setting::first();
-        $teacherMaxTime  = $setting ? $setting->teacher_max_time : '07:15:00';
-        $status          = ($currentTimeString <= $teacherMaxTime) ? 'Hadir' : 'Telat';
+        $setting        = Setting::first();
+        $teacherMaxTime = $setting ? $setting->teacher_max_time : '07:15:00';
+        $status         = ($currentTimeString <= $teacherMaxTime) ? 'Hadir' : 'Telat';
 
         TeacherAttendance::create([
             'teacher_id' => $teacher->id,
