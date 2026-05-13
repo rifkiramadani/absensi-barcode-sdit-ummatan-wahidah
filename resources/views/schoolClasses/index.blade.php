@@ -17,22 +17,46 @@
             </div>
         </div>
 
+        {{-- Search --}}
+        <div class="mt-6">
+            <form action="{{ route('school_class.index') }}" method="GET" class="flex gap-3">
+                <div class="relative w-full max-w-sm">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+                        <i class="text-xs fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input type="text" name="search" value="{{ $search }}"
+                        placeholder="Cari nama kelas..."
+                        class="block w-full pl-10 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-purple-100 focus:border-[#773DCE] transition-all">
+                </div>
+                <button type="submit"
+                    class="px-5 py-2.5 bg-gray-800 text-white text-sm font-bold rounded-xl hover:bg-gray-900 transition-all">
+                    Cari
+                </button>
+                @if($search)
+                    <a href="{{ route('school_class.index') }}"
+                        class="px-5 py-2.5 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition-colors text-sm font-bold">
+                        Reset
+                    </a>
+                @endif
+            </form>
+        </div>
+
         {{-- Alert Messages --}}
         @if (session('success'))
-            <div class="flex p-4 mt-6 text-sm text-green-800 border border-green-200 rounded-xl bg-green-50" role="alert">
+            <div class="flex p-4 mt-4 text-sm text-green-800 border border-green-200 rounded-xl bg-green-50" role="alert">
                 <i class="mt-1 mr-3 text-lg fa-solid fa-circle-check"></i>
                 <div><span class="font-bold">Berhasil!</span> {{ session('success') }}</div>
             </div>
         @endif
 
         @if (session('error'))
-            <div class="flex p-4 mt-6 text-sm text-red-800 border border-red-200 rounded-xl bg-red-50" role="alert">
+            <div class="flex p-4 mt-4 text-sm text-red-800 border border-red-200 rounded-xl bg-red-50" role="alert">
                 <i class="mt-1 mr-3 text-lg fa-solid fa-circle-xmark"></i>
                 <div><span class="font-bold">Gagal!</span> {{ session('error') }}</div>
             </div>
         @endif
 
-        <div class="flex flex-col mt-8">
+        <div class="flex flex-col mt-4">
             <div class="overflow-x-auto shadow-sm ring-1 ring-gray-100 md:rounded-2xl">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-purple-50">
@@ -43,7 +67,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
-                        @foreach ($classes as $class)
+                        @forelse ($classes as $class)
                             <tr class="transition-colors hover:bg-gray-50/50">
                                 <td class="py-4 pl-6 pr-3 text-sm font-bold text-gray-800 whitespace-nowrap">
                                     {{ $class->name }}
@@ -69,10 +93,22 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="3" class="py-12 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <i class="mb-3 text-4xl text-gray-200 fa-solid fa-school-flag"></i>
+                                        <p class="text-sm font-medium text-gray-400">
+                                            {{ $search ? 'Tidak ada kelas dengan nama "' . $search . '".' : 'Belum ada data kelas.' }}
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
+
             <div class="mt-6">
                 {{ $classes->links() }}
             </div>

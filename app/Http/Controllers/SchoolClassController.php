@@ -7,11 +7,19 @@ use Illuminate\Http\Request;
 
 class SchoolClassController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Mengambil 10 kelas per halaman
-        $classes = SchoolClass::withCount('students')->latest()->paginate(10);
-        return view('schoolClasses.index', compact('classes'));
+        $search = $request->get('search');
+
+        $classes = SchoolClass::withCount('students')
+            ->when($search, fn($q) =>
+                $q->where('name', 'LIKE', "%{$search}%")
+            )
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('schoolClasses.index', compact('classes', 'search'));
     }
 
     public function create()
@@ -50,7 +58,6 @@ class SchoolClassController extends Controller
 
     public function destroy(SchoolClass $schoolClass)
     {
-        // Cek apakah kelas masih memiliki siswa
         if ($schoolClass->students()->count() > 0) {
             return back()->with('error', 'Kelas tidak bisa dihapus karena masih memiliki siswa!');
         }
