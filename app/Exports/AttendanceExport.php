@@ -8,26 +8,39 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use Carbon\Carbon;
 
-class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAutoSize, WithColumnFormatting, WithEvents
+class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAutoSize, WithColumnFormatting, WithStyles, WithTitle, WithEvents
 {
     protected $filter;
     protected $classId;
     protected $startDate;
     protected $endDate;
 
+    // Warna baris per status/keterangan (ARGB)
+    const WARNA_STATUS = [
+        'Hadir'  => ['bg' => 'FFD1FAE5', 'font' => 'FF065F46'], // hijau muda
+        'Telat'  => ['bg' => 'FFFEF3C7', 'font' => 'FF92400E'], // kuning muda
+        'Izin'   => ['bg' => 'FFDBEAFE', 'font' => 'FF1E40AF'], // biru muda
+        'Sakit'  => ['bg' => 'FFFFEDD5', 'font' => 'FF9A3412'], // oranye muda
+        'Alpa'   => ['bg' => 'FFFEE2E2', 'font' => 'FF991B1B'], // merah muda
+    ];
+
     public function __construct($filter, $classId = null, $startDate = null, $endDate = null)
     {
-        // Pastikan filter memiliki default jika null agar teks periode tidak kosong
-        $this->filter = $filter ?? 'daily';
-        $this->classId = $classId;
+        $this->filter    = $filter ?? 'daily';
+        $this->classId   = $classId;
         $this->startDate = $startDate;
-        $this->endDate = $endDate;
+        $this->endDate   = $endDate;
     }
 
     public function query()
@@ -43,23 +56,33 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
         } else {
             $date = now();
             switch ($this->filter) {
-                case 'weekly': $query->whereBetween('date', [$date->startOfWeek()->format('Y-m-d'), $date->endOfWeek()->format('Y-m-d')]); break;
-                case 'monthly': $query->whereMonth('date', $date->month)->whereYear('date', $date->year); break;
-                case 'yearly': $query->whereYear('date', $date->year); break;
-                default: $query->whereDate('date', today()); break;
+                case 'weekly':
+                    $query->whereBetween('date', [
+                        $date->startOfWeek()->format('Y-m-d'),
+                        $date->endOfWeek()->format('Y-m-d')
+                    ]);
+                    break;
+                case 'monthly':
+                    $query->whereMonth('date', $date->month)->whereYear('date', $date->year);
+                    break;
+                case 'yearly':
+                    $query->whereYear('date', $date->year);
+                    break;
+                default:
+                    $query->whereDate('date', today());
+                    break;
             }
         }
 
-        return $query;
+        return $query->orderBy('date', 'desc');
     }
 
     public function map($attendance): array
     {
-        // Tentukan tampilan status: prioritaskan keterangan jika ada
         if ($attendance->keterangan) {
-            $statusTampil = $attendance->keterangan; // Izin / Sakit / Alpa
+            $statusTampil = $attendance->keterangan;
         } elseif ($attendance->status) {
-            $statusTampil = $attendance->status;     // Hadir / Telat
+            $statusTampil = $attendance->status;
         } else {
             $statusTampil = '-';
         }
@@ -73,8 +96,8 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
             $attendance->date,
             $attendance->check_in  ?? '-',
             $attendance->check_out ?? '-',
-            $statusTampil,                           // gabungan status + keterangan
-            $attendance->catatan_keterangan ?? '-',  // kolom catatan tambahan
+            $statusTampil,
+            $attendance->catatan_keterangan ?? '-',
         ];
     }
 
@@ -82,7 +105,7 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
     {
         return [
             'NISN', 'NIK', 'Nama Siswa', 'Kelas', 'Jenis Kelamin',
-            'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status/Keterangan', 'Catatan',
+            'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status / Keterangan', 'Catatan',
         ];
     }
 
@@ -94,65 +117,138 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
         ];
     }
 
+    public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet)
+    {
+        // Header akan di-style via AfterSheet (karena ada insert row di atas)
+        // Styling baris data dilakukan di registerEvents setelah data diisi
+        return [];
+    }
+
+    public function title(): string
+    {
+        return 'Rekap Absensi Siswa';
+    }
+
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
-                config(['app.locale' => 'id']);
+            AfterSheet::class => function (AfterSheet $event) {
                 Carbon::setLocale('id');
-
+                $sheet      = $event->sheet->getDelegate();
                 $exportDate = Carbon::now()->translatedFormat('d F Y');
-                $date = now();
+                $date       = now();
+                $totalCols  = 10;
+                $lastCol    = Coordinate::stringFromColumnIndex($totalCols);
 
-                // --- LOGIKA PERIODE DINAMIS MULAI ---
+                // ===== PERIODE =====
                 if ($this->startDate && $this->endDate) {
-                    $dateRange = "Periode Data: " . Carbon::parse($this->startDate)->translatedFormat('d F Y') . " s/d " . Carbon::parse($this->endDate)->translatedFormat('d F Y');
+                    $periode = "Periode: " . Carbon::parse($this->startDate)->translatedFormat('d F Y')
+                             . " s/d " . Carbon::parse($this->endDate)->translatedFormat('d F Y');
                 } else {
                     switch ($this->filter) {
                         case 'weekly':
-                            $start = $date->startOfWeek()->translatedFormat('d F Y');
-                            $end = $date->endOfWeek()->translatedFormat('d F Y');
-                            $dateRange = "Periode Data: Minggu Ini ($start s/d $end)";
+                            $periode = "Periode: Minggu Ini ("
+                                     . $date->startOfWeek()->translatedFormat('d F Y')
+                                     . " s/d " . $date->endOfWeek()->translatedFormat('d F Y') . ")";
                             break;
                         case 'monthly':
-                            $dateRange = "Periode Data: Bulan " . $date->translatedFormat('F Y');
+                            $periode = "Periode: Bulan " . $date->translatedFormat('F Y');
                             break;
                         case 'yearly':
-                            $dateRange = "Periode Data: Tahun " . $date->format('Y');
+                            $periode = "Periode: Tahun " . $date->format('Y');
                             break;
-                        default: // Daily / Harian
-                            $dateRange = "Periode Data: Tanggal " . today()->translatedFormat('d F Y');
+                        default:
+                            $periode = "Periode: " . today()->translatedFormat('d F Y');
                             break;
                     }
                 }
-                // --- LOGIKA PERIODE DINAMIS SELESAI ---
 
-                $event->sheet->insertNewRowBefore(1, 3);
+                // ===== INSERT 3 BARIS HEADER DI ATAS =====
+                $sheet->insertNewRowBefore(1, 3);
 
-                // Baris 1: Judul Utama
-                $event->sheet->mergeCells('A1:I1');
-                $event->sheet->setCellValue('A1', 'REKAPITULASI ABSENSI SISWA SDIT UMMATAN WAHIDAH');
+                // Baris 1: Judul
+                $sheet->mergeCells("A1:{$lastCol}1");
+                $sheet->setCellValue('A1', 'REKAPITULASI ABSENSI SISWA SDIT UMMATAN WAHIDAH');
+                $sheet->getStyle('A1')->applyFromArray([
+                    'font'      => ['bold' => true, 'size' => 14, 'color' => ['argb' => 'FFFFFFFF']],
+                    'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF773DCE']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                ]);
+                $sheet->getRowDimension(1)->setRowHeight(30);
 
-                // Baris 2: Tanggal Ekspor
-                $event->sheet->mergeCells('A2:I2');
-                $event->sheet->setCellValue('A2', 'Tanggal Ekspor: ' . $exportDate);
+                // Baris 2: Tanggal ekspor
+                $sheet->mergeCells("A2:{$lastCol}2");
+                $sheet->setCellValue('A2', 'Tanggal Ekspor: ' . $exportDate);
+                $sheet->getStyle('A2')->applyFromArray([
+                    'font'      => ['bold' => true, 'color' => ['argb' => 'FF5B21B6']],
+                    'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFF5F3FF']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                ]);
 
-                // Baris 3: Periode Data yang sudah dinamis
-                $event->sheet->mergeCells('A3:I3');
-                $event->sheet->setCellValue('A3', $dateRange);
+                // Baris 3: Periode
+                $sheet->mergeCells("A3:{$lastCol}3");
+                $sheet->setCellValue('A3', $periode);
+                $sheet->getStyle('A3')->applyFromArray([
+                    'font'      => ['bold' => true, 'color' => ['argb' => 'FF5B21B6']],
+                    'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFEDE9FE']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                ]);
 
-                // ... sisa styling (styleCenter, highestRow, dll) tetap sama seperti sebelumnya ...
-
-                // Re-apply style untuk A1:I3 agar tetap rapi
-                $styleCenter = [
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                // ===== STYLE BARIS HEADER KOLOM (baris 4 setelah insert) =====
+                $sheet->getStyle("A4:{$lastCol}4")->applyFromArray([
+                    'font' => [
+                        'bold'  => true,
+                        'color' => ['argb' => 'FFFFFFFF'],
+                        'size'  => 10,
                     ],
-                    'font' => ['bold' => true],
-                ];
-                $event->sheet->getStyle('A1:I3')->applyFromArray($styleCenter);
-                $event->sheet->getStyle('A1')->getFont()->setSize(14);
+                    'fill' => [
+                        'fillType'   => Fill::FILL_SOLID,
+                        'startColor' => ['argb' => 'FF773DCE'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical'   => Alignment::VERTICAL_CENTER,
+                        'wrapText'   => true,
+                    ],
+                ]);
+                $sheet->getRowDimension(4)->setRowHeight(25);
+
+                // ===== WARNA BARIS DATA PER STATUS =====
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 5; $row <= $highestRow; $row++) {
+                    $statusVal = $sheet->getCell("I{$row}")->getValue();
+                    $warna     = self::WARNA_STATUS[$statusVal]
+                              ?? ['bg' => 'FFFFFFFF', 'font' => 'FF374151'];
+
+                    $sheet->getStyle("A{$row}:{$lastCol}{$row}")->applyFromArray([
+                        'fill' => [
+                            'fillType'   => Fill::FILL_SOLID,
+                            'startColor' => ['argb' => $warna['bg']],
+                        ],
+                        'font' => [
+                            'color' => ['argb' => $warna['font']],
+                            'size'  => 9,
+                        ],
+                        'alignment' => [
+                            'vertical' => Alignment::VERTICAL_TOP,
+                        ],
+                    ]);
+                }
+
+                // ===== BORDER SEMUA SEL =====
+                if ($highestRow >= 4) {
+                    $sheet->getStyle("A1:{$lastCol}{$highestRow}")->applyFromArray([
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color'       => ['argb' => 'FFE5E7EB'],
+                            ],
+                        ],
+                    ]);
+                }
+
+                // Freeze setelah header kolom
+                $sheet->freezePane('A5');
             },
         ];
     }

@@ -33,7 +33,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-gray-700">NIP</label>
+                    <label class="block text-sm font-bold text-gray-700">NIY</label>
                     <input type="text" name="nip" value="{{ old('nip', $teacher->nip) }}"
                         class="block w-full mt-1 border-gray-200 rounded-xl shadow-sm focus:border-[#773DCE] focus:ring focus:ring-purple-100 sm:text-sm">
                     @error('nip') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
