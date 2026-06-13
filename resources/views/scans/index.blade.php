@@ -19,7 +19,7 @@
                 <p class="mt-2 text-sm font-medium tracking-widest text-gray-400 uppercase">Silahkan scan kartu siswa</p>
             </div>
 
-            {{-- STATE: SUCCESS / INFO / PULANG (hadir normal) --}}
+            {{-- STATE: SUCCESS / INFO --}}
             <div x-show="status === 'success' || status === 'info'"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 transform translateY(20px)"
@@ -48,7 +48,7 @@
                 </div>
 
                 <div class="w-full p-4 mt-6 border border-gray-50 rounded-2xl bg-gray-50/50">
-                    <div id="barcode-display" class="flex flex-col items-center">
+                    <div class="flex flex-col items-center">
                         <div x-html="barcodeHtml" class="p-3 mb-2 bg-white shadow-sm rounded-xl"></div>
                         <p class="font-mono text-[10px] font-bold text-gray-400 tracking-[0.2em]" x-text="studentBarcode"></p>
                     </div>
@@ -63,7 +63,6 @@
                 class="flex flex-col items-center">
 
                 <div class="relative mb-6">
-                    {{-- Glow warna sesuai keterangan --}}
                     <div class="absolute rounded-full opacity-40 -inset-2 blur-lg animate-pulse"
                         :class="{
                             'bg-blue-200':   keterangan === 'Izin',
@@ -77,11 +76,9 @@
                             'ring-4 ring-orange-200': keterangan === 'Sakit',
                             'ring-4 ring-red-200':    keterangan === 'Alpa',
                         }">
-
-                    {{-- Badge keterangan --}}
                     <div class="absolute -bottom-1 -right-1 px-4 py-1.5 text-[10px] font-black text-white rounded-full shadow-lg uppercase tracking-wider"
                         :class="{
-                            'bg-blue-500 shadow-blue-200':    keterangan === 'Izin',
+                            'bg-blue-500 shadow-blue-200':     keterangan === 'Izin',
                             'bg-orange-500 shadow-orange-200': keterangan === 'Sakit',
                             'bg-red-500 shadow-red-200':       keterangan === 'Alpa',
                         }"
@@ -91,7 +88,6 @@
 
                 <h3 class="text-2xl font-black leading-tight text-gray-800" x-text="studentName"></h3>
 
-                {{-- Icon besar sesuai keterangan --}}
                 <div class="flex items-center justify-center w-16 h-16 mx-auto mt-4 mb-3 rounded-2xl"
                     :class="{
                         'bg-blue-50':   keterangan === 'Izin',
@@ -100,9 +96,9 @@
                     }">
                     <i class="text-3xl fa-solid"
                         :class="{
-                            'fa-file-circle-check text-blue-500':  keterangan === 'Izin',
-                            'fa-kit-medical text-orange-500':      keterangan === 'Sakit',
-                            'fa-circle-xmark text-red-500':        keterangan === 'Alpa',
+                            'fa-file-circle-check text-blue-500': keterangan === 'Izin',
+                            'fa-kit-medical text-orange-500':     keterangan === 'Sakit',
+                            'fa-circle-xmark text-red-500':       keterangan === 'Alpa',
                         }"></i>
                 </div>
 
@@ -132,11 +128,25 @@
             </div>
 
             {{-- Input Scan --}}
+            {{--
+                PENTING: Hapus @blur karena justru bermasalah dengan scanner fisik.
+                Focus diurus sepenuhnya oleh keepFocus() via interval + event listener.
+            --}}
+            {{-- Input Scan --}}
             <form @submit.prevent="submitScan" class="mt-8">
                 <div class="relative">
-                    <input type="text" x-ref="rfidInput" x-model="rfid_uid" @input="handleInput()"
+                    <input type="text"
+                        id="rfidInput"
+                        x-ref="rfidInput"
+                        x-model="rfid_uid"
+                        @keydown.enter.prevent="submitScan()"
+                        @keydown.tab.prevent
+                        @input="handleInput()"
                         class="block w-full p-4 font-mono text-lg text-center text-[#773DCE] bg-purple-50/30 border-2 border-purple-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-100 focus:border-[#773DCE] transition-all placeholder-purple-200"
-                        placeholder="Menunggu scan..." autofocus @blur="$refs.rfidInput.focus()">
+                        placeholder="Menunggu scan..."
+                        autocomplete="off"
+                        spellcheck="false"
+                        autofocus>
                     <div class="absolute -translate-y-1/2 right-4 top-1/2">
                         <i class="fa-solid fa-sm fa-circle text-[#773DCE] animate-ping"></i>
                     </div>
@@ -160,12 +170,59 @@
                 studentBarcode: '',
                 barcodeHtml: '',
                 attendanceStatus: '',
-                keterangan: '',   // Izin / Sakit / Alpa
+                keterangan: '',
                 timeout: null,
                 lastScanned: '',
                 lastScannedTime: 0,
+                focusInterval: null,
                 audioSuccess: new Audio("{{ asset('assets/sounds/beep.mp3') }}"),
                 audioError:   new Audio("{{ asset('assets/sounds/beep.mp3') }}"),
+
+                init() {
+                    this.$nextTick(() => this.refocus());
+
+                    // Perkecil interval ke 50ms agar lebih responsif
+                    this.focusInterval = setInterval(() => this.refocus(), 50);
+
+                    // Klik di mana saja → refocus
+                    document.addEventListener('click', (e) => {
+                        if (!['INPUT', 'BUTTON', 'A', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) {
+                            this.refocus();
+                        }
+                    });
+
+                    // Saat halaman dapat fokus kembali
+                    window.addEventListener('focus', () => {
+                        setTimeout(() => this.refocus(), 50);
+                    });
+
+                    // Intercept keydown di level document — tangkap Enter SEBELUM browser bereaksi
+                    document.addEventListener('keydown', (e) => {
+                        const el = this.$refs.rfidInput;
+                        if (e.key === 'Enter' || e.key === 'Return') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (this.rfid_uid.length >= 1) {
+                                this.submitScan();
+                            }
+                        }
+                        // Jika ada input karakter dan fokus bukan di input, pindahkan fokus dulu
+                        if (e.key.length === 1 && document.activeElement !== el) {
+                            e.preventDefault();
+                            this.refocus();
+                            // Tambahkan karakter ke rfid_uid secara manual
+                            this.rfid_uid += e.key;
+                            this.handleInput();
+                        }
+                    }, true); // useCapture: true agar jalan sebelum event lain
+                },
+
+                refocus() {
+                    const el = this.$refs.rfidInput;
+                    if (el && document.activeElement !== el) {
+                        el.focus();
+                    }
+                },
 
                 handleInput() {
                     clearTimeout(this.timeout);
@@ -179,16 +236,22 @@
                 submitScan() {
                     if (!this.rfid_uid) return;
 
+                    clearTimeout(this.timeout); // Pastikan timeout tidak double-fire
+
                     const now = Date.now();
 
-                    // Anti double-fire: abaikan scan kartu yang sama dalam 2 detik
                     if (this.rfid_uid === this.lastScanned && (now - this.lastScannedTime) < 2000) {
                         this.rfid_uid = '';
+                        this.$nextTick(() => this.refocus());
                         return;
                     }
 
                     this.lastScanned     = this.rfid_uid;
                     this.lastScannedTime = now;
+
+                    const scannedValue = this.rfid_uid;
+                    this.rfid_uid = '';
+                    this.$nextTick(() => this.refocus()); // Refocus SEGERA setelah clear
 
                     fetch("/scan/store", {
                         method: 'POST',
@@ -197,7 +260,7 @@
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
-                        body: JSON.stringify({ rfid_uid: this.rfid_uid })
+                        body: JSON.stringify({ rfid_uid: scannedValue })
                     })
                     .then(response => {
                         if (!response.ok) return response.json().then(err => { throw err; });
@@ -208,30 +271,38 @@
                         this.message          = data.message;
                         this.studentName      = data.student_name;
                         this.studentPhoto     = data.student_photo;
-                        this.studentBarcode   = data.barcode    ?? '';
+                        this.studentBarcode   = data.barcode      ?? '';
                         this.barcodeHtml      = data.barcode_html ?? '';
                         this.attendanceStatus = data.attendance_status;
-                        this.keterangan       = data.keterangan ?? ''; // Izin/Sakit/Alpa atau kosong
+                        this.keterangan       = data.keterangan   ?? '';
 
+                        this.$nextTick(() => this.refocus());
+
+                        const delay = data.status === 'keterangan' ? 4000 : 3500;
                         if (data.status === 'keterangan') {
-                            // Bunyi berbeda untuk keterangan — bisa ganti file audio sesuai kebutuhan
                             this.audioError.play().catch(() => {});
-                            setTimeout(() => { this.status = 'idle'; this.keterangan = ''; }, 4000);
                         } else {
                             this.audioSuccess.play().catch(() => {});
-                            setTimeout(() => { this.status = 'idle'; this.keterangan = ''; }, 3500);
                         }
 
-                        this.rfid_uid = '';
+                        setTimeout(() => {
+                            this.status     = 'idle';
+                            this.keterangan = '';
+                            this.refocus();
+                        }, delay);
                     })
                     .catch(error => {
                         this.status     = 'error';
                         this.message    = error.message || 'Kartu tidak terdaftar!';
                         this.keterangan = '';
-                        this.rfid_uid   = '';
                         this.audioError.play().catch(() => {});
 
-                        setTimeout(() => { this.status = 'idle'; }, 2000);
+                        this.$nextTick(() => this.refocus());
+
+                        setTimeout(() => {
+                            this.status = 'idle';
+                            this.refocus();
+                        }, 2000);
                     });
                 }
             }
